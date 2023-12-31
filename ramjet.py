@@ -1,15 +1,18 @@
 # A spacecraft
 
+from finkchlib.actor import Actor2
+
 # A ramjet is our basic spacecraft.
 # This class will act like an interface for our proper crafts
-class Ramjet:
-    def __init__(self, step, fuel, battery, thrust, v_e, scoop_r, scoop_p, power) -> None:
+class Ramjet(Actor2):
+    def __init__(self, name, mass, radius, step, fuel, battery, thrust, v_e, scoop_r, scoop_p, power) -> None:
+        super().__init__(name, mass, radius)
         
         self.step = step
 
         # Amount that can be stored on the craft
         self.tank = Tank(self.step, fuel)
-        self.battery = Tank(self.step, fuel)
+        self.battery = Tank(self.step, battery)
 
         # Thrust parameters
         self.thrust = thrust
@@ -22,8 +25,9 @@ class Ramjet:
         # Reactor parameters
         self.power = power
 
+    # Does one step of simulation
     def __call__(self) -> None:
-        pass
+        super().__call__(self.step)
 
     def fire(self) -> float:
         pass
