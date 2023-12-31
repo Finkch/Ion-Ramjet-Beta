@@ -45,7 +45,7 @@ class Ramjet(Actor2):
         super().__call__(self.step)
 
     def __str__(self) -> str:
-        return f'{self.name}, {self.spacetime.time:.2e}\n\
+        return f'{self.name}, {self.spacetime.time:.2e} s\n\
             fuel:\t{self.tank.fuel:.2e} kg, battery:\t{self.battery.fuel:.2e}\n\
             pos:\t{self.pos()} m\n\
             vel:\t{self.vel()} m/s\n\
