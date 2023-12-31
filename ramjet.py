@@ -9,24 +9,24 @@ class Ramjet(Actor2):
     def __init__(self, name: str, mass: float, radius: float, step: float, fuel: float, battery: float, thrust: float, v_e: float, engine_power: float, scoop_r: float, scoop_p: float, power: float) -> None:
         super().__init__(name, mass, radius)
         
-        self.step = step
+        self.step: int = step
 
         # Amount that can be stored on the craft
-        self.tank = Tank(self.step, fuel)
-        self.battery = Tank(self.step, battery)
+        self.tank: Tank = Tank(self.step, fuel)
+        self.battery: Tank = Tank(self.step, battery)
 
         # Thrust parameters
-        self.thrust = thrust
-        self.v_e = v_e
-        self.m_d = self.thrust / self.v_e
-        self.engine_power = engine_power
+        self.thrust: float = thrust
+        self.v_e: float = v_e
+        self.m_d: float = self.thrust / self.v_e
+        self.engine_power: float = engine_power
 
         # Scoop parameters
-        self.scoop_r = scoop_r
-        self.scoop_p = scoop_p
+        self.scoop_r: float = scoop_r
+        self.scoop_p: float = scoop_p
 
         # Reactor parameters
-        self.power = power
+        self.power: float = power
 
     # Does one step of simulation
     def __call__(self) -> None:
@@ -118,10 +118,10 @@ class Ramjet(Actor2):
 class Tank:
     def __init__(self, step: int, max_fuel: float) -> None:
         
-        self.step = step
+        self.step: int = step
         
-        self.max_fuel = max_fuel
-        self.fuel = self.max_fuel
+        self.max_fuel: float = max_fuel
+        self.fuel: float = self.max_fuel
 
 
     # Move fuel into or out of this tank
