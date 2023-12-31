@@ -29,7 +29,7 @@ class Simulation:
 
 
             if self.debug and self.clock.time():
-                self.debug()
+                self.printout()
 
-    def debug(self):
+    def printout(self):
         print(self.ramjet)

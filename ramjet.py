@@ -1,7 +1,7 @@
 # A spacecraft
 
 from finkchlib.actor import Actor2
-#from finkchlib.vector
+from finkchlib.vector import radial_to_cartesian2
 import numpy as np
 
 # A ramjet is our basic spacecraft.
@@ -45,7 +45,7 @@ class Ramjet(Actor2):
         super().__call__(self.step)
 
     def __str__(self) -> str:
-        f'{self.name}, {self.spacetime.time:.2e}\n\
+        return f'{self.name}, {self.spacetime.time:.2e}\n\
             fuel:\t{self.tank.fuel:.2e} kg, battery:\t{self.battery.fuel:.2e}\n\
             pos:\t{self.pos()} m\n\
             vel:\t{self.vel()} m/s\n\
@@ -64,7 +64,10 @@ class Ramjet(Actor2):
         reaction_mass, reaction_power = self.refund(reaction_mass, mass_throttle, reaction_power, power_throttle)
         
         # Produces thrust
-        return reaction_mass * self.v_e 
+        thrust = reaction_mass * self.v_e 
+
+        # Converts thrust to a vector, pointing backwards from the craft
+        return -radial_to_cartesian2(thrust, self.pos().phi())
     
 
     # If one source doesn't produce enough, then refund the other source
