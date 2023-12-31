@@ -6,7 +6,7 @@ import numpy as np
 # A ramjet is our basic spacecraft.
 # This class will act like an interface for our proper crafts
 class Ramjet(Actor2):
-    def __init__(self, name, mass, radius, step, fuel, battery, thrust, v_e, engine_power, scoop_r, scoop_p, power) -> None:
+    def __init__(self, name: str, mass: float, radius: float, step: float, fuel: float, battery: float, thrust: float, v_e: float, engine_power: float, scoop_r: float, scoop_p: float, power: float) -> None:
         super().__init__(name, mass, radius)
         
         self.step = step
@@ -67,7 +67,7 @@ class Ramjet(Actor2):
     
 
     # If one source doesn't produce enough, then refund the other source
-    def refund(self, fuel, fuel_throttle, power, power_throttle):
+    def refund(self, fuel: float, fuel_throttle: float, power: float, power_throttle: float):
         
         # Refunds power if there is less fuel
         if fuel_throttle < power_throttle:
@@ -116,7 +116,7 @@ class Ramjet(Actor2):
 
 # A tank holds fuel or electricity
 class Tank:
-    def __init__(self, step, max_fuel) -> None:
+    def __init__(self, step: int, max_fuel: float) -> None:
         
         self.step = step
         
@@ -125,13 +125,13 @@ class Tank:
 
 
     # Move fuel into or out of this tank
-    def pipe_in(self, fuel) -> None:
+    def pipe_in(self, fuel: float) -> None:
 
         # Adds fuel
         # Fuel cannot go above max capacity; excess is 'jettisoned overvoard'
         self.fuel = min(self.fuel + fuel, self.max_fuel)
 
-    def pipe_out(self, fuel) -> float:
+    def pipe_out(self, fuel: float) -> float:
         
         # Pipes out fuel
         if fuel > self.fuel: # Limits fuel output if there isn't enough
