@@ -63,7 +63,8 @@ class Tank:
         # Pipes out fuel
         if fuel > self.fuel: # Limits fuel output if there isn't enough
             self.fuel = 0
-            return self.fuel
+            return self.fuel, 1
         else:
+            throttle = self.fuel / fuel
             self.fuel -= fuel
-            return fuel
+            return fuel, throttle
