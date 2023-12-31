@@ -32,6 +32,13 @@ class Ramjet(Actor2):
     def __call__(self) -> None:
         super().__call__(self.step)
 
+    def __str__(self) -> str:
+        f'{self.name}, {self.spacetime.time:.2e}\n\
+            fuel:\t{self.tank.fuel:.2e} kg, battery:\t{self.battery.fuel:.2e}\n\
+            pos:\t{self.pos()} m\n\
+            vel:\t{self.vel()} m/s\n\
+            acc:\t{self.acc()} m/s^2'
+
 
 
     # Fires the engine, producing thrust
