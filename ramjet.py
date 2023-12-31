@@ -37,18 +37,38 @@ class Ramjet(Actor2):
     # Fires the engine, producing thrust
     def fire(self) -> float:
     
-        reaction_mass, mass_throttle = self.tank.pipe_out(self.m_d)
-        reaction_power, power_throttle = self.battery.pipe_out(self.engine_power)
+        # Requests fuel and power
+        reaction_mass, mass_throttle = self.tank.pipe_out(self.m_d * self.step)
+        reaction_power, power_throttle = self.battery.pipe_out(self.engine_power * self.step)
+
+        # Refunds fuel and power if one is less than the other
+        reaction_mass, reaction_power = self.refund(reaction_mass, mass_throttle, reaction_power, power_throttle)
         
-        # If one source doesn't produce enough, then refund the other source
-        mass_refund = 0
-        power_refund = 0
-
-        self.tank.pipe_in(mass_refund)
-        self.battery.pipe_in(power_refund)
-
+        # Produces thrust
         return reaction_mass * self.v_e 
+    
 
+    # If one source doesn't produce enough, then refund the other source
+    def refund(self, fuel, fuel_throttle, power, power_throttle):
+        
+        # Refunds power if there is less fuel
+        if fuel_throttle < power_throttle:
+
+            power_refund = power * (1 - fuel_throttle / power_throttle)
+            power = power * fuel_throttle / power_throttle
+
+            self.battery.pipe_in(power_refund)
+
+        # Refunds fuel if there is less power
+        elif power_throttle < fuel_throttle:
+            
+            fuel_refund = fuel * (1 - power_throttle / fuel_throttle)
+            fuel = fuel * power_throttle / fuel_throttle
+
+            self.tank.pipe_in(fuel_refund)
+        
+        # Returns the amount of fuel and power
+        return fuel, power
 
 
     # Scoops up hydrogen from the ISM
@@ -67,7 +87,7 @@ class Ramjet(Actor2):
         power_throttle = self.battery.pipe_out(self.scoop_p)[1]
 
         # NOT UP TO DATE
-        # Still needs to account for velocity and area
+        # Still needs to account for velocity dot area
         return np.pi * (self.scoop_r * power_throttle) ** 2
 
 
