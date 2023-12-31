@@ -1,6 +1,7 @@
 # A spacecraft
 
 from finkchlib.actor import Actor2
+#from finkchlib.vector
 import numpy as np
 
 # A ramjet is our basic spacecraft.
@@ -38,7 +39,7 @@ class Ramjet(Actor2):
         self.scoop()
 
         # Fires engines
-        self.force(self.thrust())
+        self.force(self.fire())
 
         # Updates position and velocty
         super().__call__(self.step)
