@@ -93,9 +93,7 @@ class Ramjet(Actor2):
         # Gets the ratio of requested power
         power_throttle = self.battery.pipe_out(self.scoop_p)[1]
 
-        # NOT UP TO DATE
-        # Still needs to account for velocity dot area
-        return np.pi * (self.scoop_r * power_throttle) ** 2
+        return np.pi * (self.scoop_r * power_throttle) ** 2 * self.pos().normal() ^ self.vel()
 
 
     # Generates power, adding it to the battery
