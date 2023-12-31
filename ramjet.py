@@ -30,6 +30,17 @@ class Ramjet(Actor2):
 
     # Does one step of simulation
     def __call__(self) -> None:
+
+        # Generates power
+        self.generate()
+
+        # Scoops hydrogen
+        self.scoop()
+
+        # Fires engines
+        self.force(self.thrust())
+
+        # Updates position and velocty
         super().__call__(self.step)
 
     def __str__(self) -> str:
