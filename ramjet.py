@@ -99,8 +99,6 @@ class Ramjet:
         # If the throttles match, these values don't change
         fuel, power = self.refund(fuel, fuel_throttle, power, power_throttle)
 
-        print(fuel, power)
-
         # The thrust generated
         thrust = fuel * self.v_e
 
