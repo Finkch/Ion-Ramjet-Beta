@@ -3,6 +3,7 @@
 
 from finkchlib.clock import Clock
 from finkchlib.vector import Vector2
+from finkchlib.constants import *
 from ramjet import Ramjet
 
 class Simulation:
@@ -42,6 +43,10 @@ class Simulation:
 
         # One end condition: tank is empty
         if self.ramjet.tank.is_empty():
+            self.exist = False
+
+        # Safety end condition: a millenium of steps (not time!) has past
+        if self.ramjet.spacetime.steps > 1000 * year:
             self.exist = False
 
     # Hanldes the end of the simulation
