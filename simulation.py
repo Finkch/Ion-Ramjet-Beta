@@ -28,10 +28,16 @@ class Simulation:
 
             if self.clock.time():
                 self.printout()
+            
+            self.check_end()
 
     def printout(self):
         print('\n\n')
         print(self.ramjet)
+
+    # Check if the simulation should end
+    def check_end(self):
+        pass
 
 
 # The same as Simulation but the steps are taken at a rate of 1:1 with printouts
@@ -44,4 +50,6 @@ class DebugSimulation(Simulation):
             if self.clock.time():
                 self.printout()
                 self.ramjet()
+            
+                self.check_end()
 
