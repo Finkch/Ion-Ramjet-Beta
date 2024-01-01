@@ -12,9 +12,6 @@ class Simulation:
         # Seconds per simulation step
         self.step: int = 1
 
-        # Used to perform printouts
-        self.clock: Clock = Clock(framerate)
-
         # The craft to simulate
         # X_e   = 131.293 u
         # H     = 1.00784 u
@@ -24,12 +21,15 @@ class Simulation:
     # Simulation loop
     def __call__(self):
         while self.exist:
-            self.ramjet()
-
-            if self.clock.time():
-                self.printout()
             
+            # Simulates the ramjet
+            self.ramjet()
+            
+            # Checks whether the simulation can end
             self.check_end()
+
+        # Handles the end of the simulation
+        self.end()
 
     def printout(self):
         print('\n\n')
@@ -37,13 +37,26 @@ class Simulation:
 
     # Check if the simulation should end
     def check_end(self):
-        pass
+
+        # One end condition: tank is empty
+        if self.ramjet.tank.is_empty():
+            self.exist = False
+
+    # Hanldes the end of the simulation
+    def end(self):
+        self.printout()
+        print('All done!')
 
 
-# The same as Simulation but the steps are taken at a rate of 1:1 with printouts
+
+# The same as Simulation but the steps are taken at a rate of 1:1 with printouts.
+# Only DebugSim can perform printouts
 class DebugSimulation(Simulation):
     def __init__(self, framerate) -> None:
         super().__init__(framerate)
+
+        # Used to perform printouts
+        self.clock: Clock = Clock(framerate)
 
     def __call__(self) -> None:
         while self.exist:
@@ -52,4 +65,6 @@ class DebugSimulation(Simulation):
                 self.ramjet()
             
                 self.check_end()
+
+        self.end()
 

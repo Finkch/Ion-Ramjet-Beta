@@ -5,7 +5,7 @@ from simulation import *
 # Gets everything going
 def main():
     
-    debug = True
+    debug = False
 
     # Desired framerate for printouts
     framerate = 1000 / 60 if not debug else 1000

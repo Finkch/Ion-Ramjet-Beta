@@ -193,6 +193,10 @@ class Tank:
         else:
             self.fuel -= amount
             return amount, 1
+    
+    # Checks if the tank is empty
+    def is_empty(self) -> bool:
+        return self.fuel == 0
 
 
 # Oversees the space and time of a thing
