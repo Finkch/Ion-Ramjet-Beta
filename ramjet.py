@@ -34,7 +34,7 @@ class Ramjet:
         self.power = power
 
         # Used to preview force
-        self.thrust = Vector2()
+        self.thrust_preview = Vector2()
 
         self.update_mass()
 
@@ -45,10 +45,13 @@ class Ramjet:
             pos:\t{self.spacetime.position} m\n\
             vel:\t{self.spacetime.velocity} m/s\n\
             acc:\t{self.spacetime.acceleration_preview} m/s^2\n\
-            thr:\t{self.thrust} N'
+            thr:\t{self.thrust_preview} N'
 
     # One step of simulation for the craft
     def __call__(self):
+
+        # Resets force preview
+        self.thrust_preview = Vector2()
 
         # Generates power
         self.generate()
@@ -57,13 +60,13 @@ class Ramjet:
         self.scoop()
 
         # Creates thrust
-        self.thrust = self.fire()
+        thrust = self.fire()
         
         # Updates mass
         self.update_mass()
 
         # Applies thrust
-        self.force(self.thrust)
+        self.force(thrust)
 
         # Steps the craft forward
         self.spacetime()
@@ -75,10 +78,15 @@ class Ramjet:
     # Applies a force to the craft
     def force(self, amount: Vector2) -> None:
         self.spacetime.acceleration += amount / self.mass
+        self.thrust_preview += amount / self.mass
 
     # Fires the engine
     def fire(self) -> Vector2:
         
+        # If the tank is emtpy, return a 0 vector
+        if self.tank.is_empty():
+            return Vector2(0, 0)
+
         # Obtains some fuel and power
         fuel, fuel_throttle = self.tank.pipe_out(self.m_d * self.step)
         power, power_throttle = self.battery.pipe_out(self.engine_power * self.step)
@@ -90,6 +98,8 @@ class Ramjet:
         # Refunds spare fuel when throttles don't match.
         # If the throttles match, these values don't change
         fuel, power = self.refund(fuel, fuel_throttle, power, power_throttle)
+
+        print(fuel, power)
 
         # The thrust generated
         thrust = fuel * self.v_e

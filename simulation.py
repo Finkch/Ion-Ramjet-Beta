@@ -31,6 +31,8 @@ class Simulation:
         # Handles the end of the simulation
         self.end()
 
+
+    # Performs a printout
     def printout(self):
         print('\n\n')
         print(self.ramjet)
