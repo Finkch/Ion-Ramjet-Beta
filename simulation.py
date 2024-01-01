@@ -71,7 +71,8 @@ class DebugSimulation(Simulation):
 
     def __call__(self) -> None:
         while self.exist:
-            if self.clock.time():
+            if self.real_time.time():
+                self.clock()
                 self.printout()
                 self.ramjet()
             
