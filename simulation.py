@@ -45,8 +45,8 @@ class Simulation:
         if self.ramjet.tank.is_empty():
             self.exist = False
 
-        # Safety end condition: a millenium of steps (not time!) has past
-        if self.ramjet.spacetime.time > 1000 * year:
+        # Safety end condition: a century of steps (not time!) has past
+        if self.ramjet.spacetime.time > 100 * year:
             self.exist = False
 
     # Hanldes the end of the simulation
