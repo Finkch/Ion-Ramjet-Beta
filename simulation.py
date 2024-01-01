@@ -11,7 +11,7 @@ class Simulation:
         self.exist: bool = True
 
         # Used to track performance
-        self.time: Time = Time(rate, framerate)
+        self.clock: Time = Time(rate, framerate)
 
         # Seconds per simulation step
         self.step: float = rate
@@ -27,7 +27,7 @@ class Simulation:
         while self.exist:
             
             # Stamps time taken for sim step
-            self.time()
+            #self.clock()
 
             # Simulates the ramjet
             self.ramjet()
@@ -49,17 +49,28 @@ class Simulation:
     def check_end(self):
 
         # One end condition: tank is empty
-        if self.ramjet.tank.is_empty():
-            self.exist = False
+        self.tank_empty()
 
         # Safety end condition: a century of steps (not time!) has past
-        if self.ramjet.spacetime.time > 100 * year:
+        self.heat_death()
             self.exist = False
 
     # Hanldes the end of the simulation
     def end(self):
         self.printout()
         print('All done!')
+
+
+
+    # A list of ending conditions
+    def tank_empty(self) -> None:
+        if self.ramjet.tank.is_empty():
+            self.exist = False
+
+    # Safety condition
+    def heat_death(self) -> None:
+        if self.ramjet.spacetime.time > 100 * year:
+            self.exist = False
 
 
 
