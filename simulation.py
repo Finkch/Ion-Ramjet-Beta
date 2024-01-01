@@ -1,14 +1,17 @@
 # This file contains a class that performs the simulation
 # Wrapping it in a class makes for easy referencing
 
-from finkchlib.clock import Clock
+from finkchlib.orders import Time
 from finkchlib.vector import Vector2
 from finkchlib.constants import *
 from ramjet import Ramjet
 
 class Simulation:
-    def __init__(self, rate: float) -> None:
-        self.exist = True
+    def __init__(self, rate: float, framerate: float) -> None:
+        self.exist: bool = True
+
+        # Used to track performance
+        self.time: Time = Time(rate, framerate)
 
         # Seconds per simulation step
         self.step: float = rate
@@ -23,6 +26,9 @@ class Simulation:
     def __call__(self):
         while self.exist:
             
+            # Stamps time taken for sim step
+            self.time()
+
             # Simulates the ramjet
             self.ramjet()
             
@@ -36,6 +42,7 @@ class Simulation:
     # Performs a printout
     def printout(self):
         print('\n\n')
+        print(self.time)
         print(self.ramjet)
 
     # Check if the simulation should end
@@ -60,10 +67,7 @@ class Simulation:
 # Only DebugSim can perform printouts
 class DebugSimulation(Simulation):
     def __init__(self, rate: float, framerate: float) -> None:
-        super().__init__(rate)
-
-        # Used to perform printouts
-        self.clock: Clock = Clock(framerate)
+        super().__init__(rate, framerate)
 
     def __call__(self) -> None:
         while self.exist:
