@@ -53,7 +53,6 @@ class Simulation:
 
         # Safety end condition: a century of steps (not time!) has past
         self.heat_death()
-            self.exist = False
 
     # Hanldes the end of the simulation
     def end(self):
