@@ -7,10 +7,12 @@ def main():
     
     debug = False
 
+    rate = day
+
     # Desired framerate for printouts
     framerate = 1000 / 60 if not debug else 1000
 
-    simulation = Simulation(framerate) if not debug else DebugSimulation(framerate) 
+    simulation = Simulation(rate) if not debug else DebugSimulation(rate, framerate) 
 
     simulation()
 

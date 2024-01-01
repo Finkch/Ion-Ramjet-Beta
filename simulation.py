@@ -7,11 +7,11 @@ from finkchlib.constants import *
 from ramjet import Ramjet
 
 class Simulation:
-    def __init__(self, framerate) -> None:
+    def __init__(self, rate: float) -> None:
         self.exist = True
 
         # Seconds per simulation step
-        self.step: int = 1
+        self.step: float = rate
 
         # The craft to simulate
         # X_e   = 131.293 u
@@ -46,7 +46,7 @@ class Simulation:
             self.exist = False
 
         # Safety end condition: a millenium of steps (not time!) has past
-        if self.ramjet.spacetime.steps > 1000 * year:
+        if self.ramjet.spacetime.time > 1000 * year:
             self.exist = False
 
     # Hanldes the end of the simulation
@@ -59,8 +59,8 @@ class Simulation:
 # The same as Simulation but the steps are taken at a rate of 1:1 with printouts.
 # Only DebugSim can perform printouts
 class DebugSimulation(Simulation):
-    def __init__(self, framerate) -> None:
-        super().__init__(framerate)
+    def __init__(self, rate: float, framerate: float) -> None:
+        super().__init__(rate)
 
         # Used to perform printouts
         self.clock: Clock = Clock(framerate)
