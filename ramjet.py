@@ -89,6 +89,9 @@ class Part:
         self.name: str = name
         self.preview = {}
 
+    def get_preview(self):
+        return self.preview
+
 # A Tank holds fuel or battery charge
 class Tank(Part):
     def __init__(self, name: str, capacity: float) -> None:
@@ -138,6 +141,12 @@ class Tank(Part):
     # Checks if the tank is empty
     def is_empty(self) -> bool:
         return self.fuel == 0
+    
+    def get_preview(self):
+        return {
+            'fuel': self.fuel,
+            'capacity': self.capacity
+        }
 
 
 
