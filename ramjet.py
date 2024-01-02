@@ -222,6 +222,47 @@ class Tank(Part):
         return self.fuel == 0
 
 
+# A Generator provides fuel
+class Scoop(Part):
+    def __init__(self, name: str, power: float, max_radius: float, efficiency: float) -> None:
+        super().__init__(name)
+        self.power = power
+        self.radius = max_radius
+
+        self.efficiency = efficiency # Scalar E [0, 1]
+
+    # Calling a Scoop scoops up H from the ISM
+    def __call__(self, ramjet: Ramjet) -> float:
+        
+        # Allignment of scoop to ISM
+        # Cannot be negative; negative corresponds to the craft facing backwards
+        allignment = max(ramjet.spacetime.position.normal() ^ ramjet.spacetime.velocity.normal(), 0)
+        if allignment != allignment: # Check for nan
+            allignment = 0
+
+        # Power available to the scoop
+        power, throttle = ramjet.battery.pipe_out(self.power)
+
+        # Area of scoop
+        area = np.pi * (self.radius * throttle) ** 2
+
+        # Effective volume swept
+        V_eff = area * allignment * ramjet.spacetime.velocity.hypo() * ramjet.step
+
+        # Efficiency of the scoop
+        # The percent of hydrogen the scoop fails to pick up
+        efficiency = 1
+
+        # Mass of hydrogen scooped up
+        m_H = efficiency * V_eff * vacuum_H_mass_density
+
+        # Adds the mass scooped up to the tank
+        ramjet.tank.pipe_in(m_H)
+
+        return m_H, allignment, area, V_eff
+
+
+
 # A Generator provides power
 class Generator(Part):
     def __init__(self, name, power) -> None:
