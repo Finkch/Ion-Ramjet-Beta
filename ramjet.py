@@ -45,15 +45,15 @@ class Ramjet:
         self.update_mass()
 
     def __str__(self) -> str:
-        return f'{self.name}, {self.mass} kg, {self.spacetime.time:.2e} s\n\
+        return f'{self.name}, {self.mass} kg\n\
             fuel:\t{self.tank} kg\n\
             battery:\t{self.battery} J\n\
             pos:\t{self.spacetime.position} m\n\
             vel:\t{self.spacetime.velocity} m/s\n\
             acc:\t{self.spacetime.acceleration_preview} m/s^2\n\
             thr:\t{self.thrust_preview} N\n\
-            scp:\t{self.scoop_preview}\n\
-            gen:\t{self.generator_preview}'
+            scp:\t{self.scoop_preview:.4e} kg\n\
+            gen:\t{self.generator_preview:.4e} J'
 
     # One step of simulation for the craft
     def __call__(self):
