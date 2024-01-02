@@ -21,18 +21,10 @@ class Ramjet:
         self.tank: Tank = Tank('tank', fuel_capacity)
         self.battery: Tank = Tank('battery', battery_capacity)
 
-        # Thruster parameters
-        self.thrust: float = thrust
-        self.v_e: float = v_e
-        self.m_d: float = self.thrust / self.v_e
-        self.engine_power: float = engine_power
-
-        # Scoop parameters
-        self.scoop_power: float = scoop_power
-        self.scoop_radius: float = scoop_radius
-
-        # Generator parameters
-        self.power: float = power
+        # Ramjet components
+        self.thruster = Thruster('thruster', thrust, v_e, engine_power)
+        self.scooper = Scoop('scoop', scoop_power, scoop_radius, 1)
+        self.generator = Generator('generator', power)
 
         # Used to preview aspects of the craft
         self.thrust_preview: Vector2 = Vector2()
@@ -60,13 +52,13 @@ class Ramjet:
     def __call__(self):
 
         # Generates power
-        self.generator_preview = self.generate()
+        self.generator_preview = self.generator(self)
 
         # Scoops up hydrogen
-        self.scoop_preview, self.allignment_preview, self.area_preview, self.volume_preview = self.scoop()
+        self.scoop_preview, self.allignment_preview, self.area_preview, self.volume_preview = self.scooper(self)
 
         # Creates thrust
-        thrust = self.fire()
+        thrust = self.thruster(self)
         self.thrust_preview = thrust
         
         # Updates mass
@@ -86,30 +78,6 @@ class Ramjet:
     def force(self, amount: Vector2) -> None:
         self.spacetime.acceleration += amount / self.mass
 
-    # Fires the engine
-    def fire(self) -> Vector2:
-        
-        # If the tank is emtpy, return a 0 vector
-        if self.tank.is_empty():
-            return Vector2(0, 0)
-
-        # Obtains some fuel and power
-        fuel, fuel_throttle = self.tank.pipe_out(self.m_d * self.step)
-        power, power_throttle = self.battery.pipe_out(self.engine_power * self.step)
-
-        # Safety check
-        assert fuel_throttle >= 0 and fuel_throttle <= 1, f'Fuel throttle is not within range ({fuel_throttle})'
-        assert power_throttle >= 0 and power_throttle <= 1, f'Fuel throttle is not within range ({power_throttle})'
-
-        # Refunds spare fuel when throttles don't match.
-        # If the throttles match, these values don't change
-        fuel, power = self.refund(fuel, fuel_throttle, power, power_throttle)
-
-        # The thrust generated
-        thrust = fuel * self.v_e
-
-        # Converts the thrust to a vector oriented backwards from the craft
-        return radial_to_cartesian2(thrust, self.spacetime.position.phi())
     
     # Refunds when one throttle is lower than the other
     def refund(self, fuel: float, fuel_throttle: float, power: float, power_throttle: float) -> tuple[float, float]:
@@ -125,44 +93,6 @@ class Ramjet:
         fuel_effective = fuel * limiting_throttle / fuel_throttle
         tank.pipe_in(fuel - fuel_effective)
         return fuel_effective
-
-
-    # Scoops up hydrogen from the ISM
-    def scoop(self) -> None:
-        
-        # Allignment of scoop to ISM
-        # Cannot be negative; negative corresponds to the craft facing backwards
-        allignment = max(self.spacetime.position.normal() ^ self.spacetime.velocity.normal(), 0)
-        if allignment != allignment: # Check for nan
-            allignment = 0
-
-        # Power available to the scoop
-        power, throttle = self.battery.pipe_out(self.scoop_power)
-
-        # Area of scoop
-        area = np.pi * (self.scoop_radius * throttle) ** 2
-
-        # Effective volume swept
-        V_eff = area * allignment * self.spacetime.velocity.hypo() * self.step
-
-        # Efficiency of the scoop
-        # The percent of hydrogen the scoop fails to pick up
-        efficiency = 1
-
-        # Mass of hydrogen scooped up
-        m_H = efficiency * V_eff * vacuum_H_mass_density
-
-        # Adds the mass scooped up to the tank
-        self.tank.pipe_in(m_H)
-
-        return m_H, allignment, area, V_eff
-
-
-    # Generates power
-    def generate(self) -> None:
-        self.battery.pipe_in(self.power)
-        return self.power
-
 
 
 
