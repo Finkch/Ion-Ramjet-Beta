@@ -80,6 +80,15 @@ class Ramjet:
         fuel_effective = fuel * limiting_throttle / fuel_throttle
         tank.pipe_in(fuel - fuel_effective)
         return fuel_effective
+    
+    def get_previews(self):
+        return {
+            self.tank.name:         self.tank.get_preview(),
+            self.battery.name:      self.battery.get_preview(),
+            self.thruster.name:     self.thruster.get_preview(),
+            self.scooper.name:      self.scooper.get_preview(),
+            self.generator.name:    self.generator.get_preview()
+        }
 
 
 
