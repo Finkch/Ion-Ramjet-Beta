@@ -26,15 +26,6 @@ class Ramjet:
         self.scooper = Scoop('scoop', scoop_power, scoop_radius, 1)
         self.generator = Generator('generator', power)
 
-        # Used to preview aspects of the craft
-        self.thrust_preview: Vector2 = Vector2()
-        self.scoop_preview: float = 0
-        self.generator_preview: float = 0
-
-        self.allignment_preview: float = 0
-        self.area_preview: float = 0
-        self.volume_preview: float = 0
-
         self.update_mass()
 
     def __str__(self) -> str:
@@ -43,23 +34,19 @@ class Ramjet:
             battery:\t{self.battery} J\n\
             pos:\t{self.spacetime.position} m\n\
             vel:\t{self.spacetime.velocity} m/s\n\
-            acc:\t{self.spacetime.acceleration_preview} m/s^2\n\
-            thr:\t{self.thrust_preview} N\n\
-            scp:\t{self.scoop_preview:.4e} kg\n\
-            gen:\t{self.generator_preview:.4e} J'
+            acc:\t{self.spacetime.acceleration_preview} m/s^2'
 
     # One step of simulation for the craft
     def __call__(self):
 
         # Generates power
-        self.generator_preview = self.generator(self)
+        self.generator(self)
 
         # Scoops up hydrogen
-        self.scoop_preview, self.allignment_preview, self.area_preview, self.volume_preview = self.scooper(self)
+        self.scooper(self)
 
         # Creates thrust
         thrust = self.thruster(self)
-        self.thrust_preview = thrust
         
         # Updates mass
         self.update_mass()
@@ -100,6 +87,7 @@ class Ramjet:
 class Part:
     def __init__(self, name: str) -> None:
         self.name: str = name
+        self.preview = {}
 
 # A Tank holds fuel or battery charge
 class Tank(Part):
@@ -192,6 +180,15 @@ class Thruster(Part):
         # The thrust generated
         thrust = fuel * self.v_e
 
+        # Updates the part's preview
+        self.preview = {
+            'thrust': thrust,
+            'fuel': fuel,
+            'fuel_throttle': fuel_throttle,
+            'power': power,
+            'power_throttle': power_throttle
+            }
+
         # Converts the thrust to a vector oriented backwards from the craft
         return radial_to_cartesian2(thrust, ramjet.spacetime.position.phi())
 
@@ -224,17 +221,21 @@ class Scoop(Part):
         # Effective volume swept
         V_eff = area * allignment * ramjet.spacetime.velocity.hypo() * ramjet.step
 
-        # Efficiency of the scoop
-        # The percent of hydrogen the scoop fails to pick up
-        efficiency = 1
-
         # Mass of hydrogen scooped up
-        m_H = efficiency * V_eff * vacuum_H_mass_density
+        m_H = self.efficiency * V_eff * vacuum_H_mass_density
 
         # Adds the mass scooped up to the tank
         ramjet.tank.pipe_in(m_H)
 
-        return m_H, allignment, area, V_eff
+        # Updates the part's preview
+        self.preview = {
+            'm_H': m_H,
+            'power': power,
+            'power_throttle': throttle,
+            'allignment': allignment,
+            'area': area,
+            'volume': V_eff
+        }
 
 
 
@@ -247,4 +248,8 @@ class Generator(Part):
     # Calling a Generator provides power to the battery
     def __call__(self, ramjet: Ramjet) -> float:
         ramjet.battery.pipe_in(self.power)
-        return self.power
+        
+        # Updates the part's preview
+        self.preview = {
+            'power': self.power
+        }
