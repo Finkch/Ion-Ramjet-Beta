@@ -166,9 +166,9 @@ class Ramjet:
 
 
 
-# A part is a component of a spacecraft
+# A Part is any component of a spacecraft
 class Part:
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name: str = name
 
 # A Tank holds fuel or battery charge
@@ -220,3 +220,15 @@ class Tank(Part):
     # Checks if the tank is empty
     def is_empty(self) -> bool:
         return self.fuel == 0
+
+
+# A Generator provides power
+class Generator(Part):
+    def __init__(self, name, power) -> None:
+        super().__init__(name)
+        self.power = power
+
+    # Calling a Generator provides power to the battery
+    def __call__(self, ramjet: Ramjet) -> float:
+        ramjet.battery.pipe_in(self.power)
+        return self.power
