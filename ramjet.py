@@ -222,7 +222,52 @@ class Tank(Part):
         return self.fuel == 0
 
 
-# A Generator provides fuel
+
+# A Thruster provides thrust
+class Thruster(Part):
+    def __init__(self, name: str, thrust: float, v_e: float, power: float) -> None:
+        super().__init__(name)
+
+        # Maximum thrust this engine can provide
+        self.thrust: float = thrust
+
+        # Exhaust velocity
+        self.v_e: float = v_e
+
+        # Mass flow rate
+        self.m_d: float = self.thrust / self.v_e
+
+        # Power consumed by the thruster
+        self.power: float = power
+
+    # Call a Thruster converts fuel and power to thrust; it fires the engines
+    def __call__(self, ramjet: Ramjet) -> Vector2:
+        
+        # If the tank is emtpy, return a 0 vector
+        if ramjet.tank.is_empty():
+            return Vector2(0, 0)
+
+        # Obtains some fuel and power
+        fuel, fuel_throttle = ramjet.tank.pipe_out(self.m_d * ramjet.step)
+        power, power_throttle = ramjet.battery.pipe_out(self.power * ramjet.step)
+
+        # Safety check
+        assert fuel_throttle >= 0 and fuel_throttle <= 1, f'Fuel throttle is not within range ({fuel_throttle})'
+        assert power_throttle >= 0 and power_throttle <= 1, f'Fuel throttle is not within range ({power_throttle})'
+
+        # Refunds spare fuel when throttles don't match.
+        # If the throttles match, these values don't change
+        fuel, power = ramjet.refund(fuel, fuel_throttle, power, power_throttle)
+
+        # The thrust generated
+        thrust = fuel * self.v_e
+
+        # Converts the thrust to a vector oriented backwards from the craft
+        return radial_to_cartesian2(thrust, ramjet.spacetime.position.phi())
+
+
+
+# A Scoop provides fuel
 class Scoop(Part):
     def __init__(self, name: str, power: float, max_radius: float, efficiency: float) -> None:
         super().__init__(name)
