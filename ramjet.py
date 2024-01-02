@@ -10,37 +10,37 @@ class Ramjet:
     def __init__(self, name: str, mass: float, step: int, fuel_capacity: float, battery_capacity: float, thrust: float, v_e: float, engine_power: float, scoop_power: float, scoop_radius: float, power: float) -> None:
         
         self.name: str = name
-        self.step = step
+        self.step: float = step
         self.spacetime: Spacetime = Spacetime(step)
 
-        self.mass = 0
+        self.mass: float = 0
         self.core_mass: float = mass
 
         # Fuel storage of this craft
-        self.tank = Tank('tank', fuel_capacity)
-        self.battery = Tank('battery', battery_capacity)
+        self.tank: Tank = Tank('tank', fuel_capacity)
+        self.battery: Tank = Tank('battery', battery_capacity)
 
         # Thruster parameters
-        self.thrust = thrust
-        self.v_e = v_e
-        self.m_d = self.thrust / self.v_e
-        self.engine_power = engine_power
+        self.thrust: float = thrust
+        self.v_e: float = v_e
+        self.m_d: float = self.thrust / self.v_e
+        self.engine_power: float = engine_power
 
         # Scoop parameters
-        self.scoop_power = scoop_power
-        self.scoop_radius = scoop_radius
+        self.scoop_power: float = scoop_power
+        self.scoop_radius: float = scoop_radius
 
         # Generator parameters
-        self.power = power
+        self.power: float = power
 
         # Used to preview aspects of the craft
-        self.thrust_preview = Vector2()
-        self.scoop_preview = 0
-        self.generator_preview = 0
+        self.thrust_preview: Vector2 = Vector2()
+        self.scoop_preview: float = 0
+        self.generator_preview: float = 0
 
-        self.allignment_preview = 0
-        self.area_preview = 0
-        self.volume_preview = 0
+        self.allignment_preview: float = 0
+        self.area_preview: float = 0
+        self.volume_preview: float = 0
 
         self.update_mass()
 
