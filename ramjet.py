@@ -33,8 +33,10 @@ class Ramjet:
         # Generator parameters
         self.power = power
 
-        # Used to preview force
+        # Used to preview aspects of the craft
         self.thrust_preview = Vector2()
+        self.scoop_preview = 0
+        self.generator_preview = 0
 
         self.update_mass()
 
@@ -50,17 +52,15 @@ class Ramjet:
     # One step of simulation for the craft
     def __call__(self):
 
-        # Resets force preview
-        self.thrust_preview = Vector2()
-
         # Generates power
-        self.generate()
+        self.generator_preview = self.generate()
 
         # Scoops up hydrogen
-        self.scoop()
+        self.scoop_preview = self.scoop()
 
         # Creates thrust
         thrust = self.fire()
+        self.thrust_preview = thrust
         
         # Updates mass
         self.update_mass()
@@ -78,7 +78,6 @@ class Ramjet:
     # Applies a force to the craft
     def force(self, amount: Vector2) -> None:
         self.spacetime.acceleration += amount / self.mass
-        self.thrust_preview += amount / self.mass
 
     # Fires the engine
     def fire(self) -> Vector2:
@@ -149,10 +148,13 @@ class Ramjet:
         # Adds the mass scooped up to the tank
         self.tank.pipe_in(m_H)
 
+        return m_H
+
 
     # Generates power
     def generate(self) -> None:
         self.battery.pipe_in(self.power)
+        return self.power
 
 
 
