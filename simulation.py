@@ -49,7 +49,8 @@ class Simulation:
     def check_end(self):
 
         # One end condition: tank is empty
-        self.tank_empty()
+        # Thisis not always a condition
+        #self.tank_empty()
 
         # Safety end condition: a century of steps (not time!) has past
         self.heat_death()
@@ -73,7 +74,7 @@ class Simulation:
 
     # Safety condition
     def heat_death(self) -> None:
-        if self.ramjet.spacetime.time > 100 * year:
+        if self.ramjet.spacetime.time > 2 * day:
             self.exist = False
 
 
