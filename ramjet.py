@@ -165,10 +165,16 @@ class Ramjet:
 
 
 
-# A Tank holds fuel or battery charge
-class Tank:
-    def __init__(self, name: str, capacity: float) -> None:
+
+# A part is a component of a spacecraft
+class Part:
+    def __init__(self, name: str):
         self.name: str = name
+
+# A Tank holds fuel or battery charge
+class Tank(Part):
+    def __init__(self, name: str, capacity: float) -> None:
+        super().__init__(name)
         
         self.capacity: float = capacity
         self.fuel: float = self.capacity
