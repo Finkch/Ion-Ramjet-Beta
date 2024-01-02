@@ -7,7 +7,7 @@ def main():
     
     debug = False
 
-    rate = day
+    rate = 1
 
     # Desired framerate for printouts
     framerate = 1000 / 60 if not debug else 1000

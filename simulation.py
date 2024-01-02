@@ -27,7 +27,7 @@ class Simulation:
         while self.exist:
             
             # Stamps time taken for sim step
-            #self.clock()
+            self.clock()
 
             # Simulates the ramjet
             self.ramjet()
@@ -42,7 +42,7 @@ class Simulation:
     # Performs a printout
     def printout(self):
         print('\n\n')
-        print(self.time)
+        print(f'{self.clock} -> {self.clock.sim_time:.2e}')
         print(self.ramjet)
 
     # Check if the simulation should end
@@ -57,6 +57,11 @@ class Simulation:
     # Hanldes the end of the simulation
     def end(self):
         self.printout()
+
+        self.clock.real_time.stamp()
+        delta = (self.clock.real_time.peek() - self.clock.real_time.start) / 1000
+        print(f'Real time: {delta:.2e}')
+        print(f'Steps per second: {self.ramjet.spacetime.steps / delta:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
         print('All done!')
 
 
