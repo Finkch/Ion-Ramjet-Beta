@@ -2,6 +2,7 @@
 
 from finkchlib.vector import radial_to_cartesian2, Vector2
 from finkchlib.constants import vacuum_H_mass_density
+from spacetime import Spacetime
 import numpy as np
 
 # A ramjet is our basic spacecraft.
@@ -213,26 +214,3 @@ class Tank:
     # Checks if the tank is empty
     def is_empty(self) -> bool:
         return self.fuel == 0
-
-
-# Oversees the space and time of a thing
-class Spacetime:
-    def __init__(self, step, position: Vector2 = Vector2(), velocity: Vector2 = Vector2(), acceleration: Vector2 = Vector2()) -> None:
-        self.step: int = step
-
-        self.position: Vector2 = position
-        self.velocity: Vector2 = velocity
-        self.acceleration: Vector2 = acceleration
-
-        self.acceleration_preview: Vector2 = Vector2()
-    
-    # Updates the space and time
-    def __call__(self):
-
-        # Updates postion and velocity
-        self.velocity += self.acceleration * self.step
-        self.position += self.velocity * self.step
-
-        # Resets acceleration
-        self.acceleration_preview: Vector2 = self.acceleration
-        self.acceleration: Vector2 = Vector2()
