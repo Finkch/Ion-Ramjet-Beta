@@ -218,8 +218,6 @@ class Tank:
 # Oversees the space and time of a thing
 class Spacetime:
     def __init__(self, step, position: Vector2 = Vector2(), velocity: Vector2 = Vector2(), acceleration: Vector2 = Vector2()) -> None:
-        self.time: float = 0
-        self.steps: float = 0
         self.step: int = step
 
         self.position: Vector2 = position
@@ -230,10 +228,6 @@ class Spacetime:
     
     # Updates the space and time
     def __call__(self):
-
-        # Increments time
-        self.time += self.step
-        self.steps += 1
 
         # Updates postion and velocity
         self.velocity += self.acceleration * self.step
