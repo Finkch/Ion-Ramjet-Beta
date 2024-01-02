@@ -38,6 +38,10 @@ class Ramjet:
         self.scoop_preview = 0
         self.generator_preview = 0
 
+        self.allignment_preview = 0
+        self.area_preview = 0
+        self.volume_preview = 0
+
         self.update_mass()
 
     def __str__(self) -> str:
@@ -47,7 +51,9 @@ class Ramjet:
             pos:\t{self.spacetime.position} m\n\
             vel:\t{self.spacetime.velocity} m/s\n\
             acc:\t{self.spacetime.acceleration_preview} m/s^2\n\
-            thr:\t{self.thrust_preview} N'
+            thr:\t{self.thrust_preview} N\n\
+            scp:\t{self.scoop_preview}\n\
+            gen:\t{self.generator_preview}'
 
     # One step of simulation for the craft
     def __call__(self):
@@ -56,7 +62,7 @@ class Ramjet:
         self.generator_preview = self.generate()
 
         # Scoops up hydrogen
-        self.scoop_preview = self.scoop()
+        self.scoop_preview, self.allignment_preview, self.area_preview, self.volume_preview = self.scoop()
 
         # Creates thrust
         thrust = self.fire()
@@ -148,7 +154,7 @@ class Ramjet:
         # Adds the mass scooped up to the tank
         self.tank.pipe_in(m_H)
 
-        return m_H
+        return m_H, allignment, area, V_eff
 
 
     # Generates power
