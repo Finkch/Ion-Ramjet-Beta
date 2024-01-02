@@ -1,143 +1,244 @@
 # A spacecraft
 
-from finkchlib.actor import Actor2
+from finkchlib.vector import radial_to_cartesian2, Vector2
+from finkchlib.constants import vacuum_H_mass_density
 import numpy as np
 
 # A ramjet is our basic spacecraft.
 # This class will act like an interface for our proper crafts
-class Ramjet(Actor2):
-    def __init__(self, name, mass, radius, step, fuel, battery, thrust, v_e, engine_power, scoop_r, scoop_p, power) -> None:
-        super().__init__(name, mass, radius)
+class Ramjet:
+    def __init__(self, name: str, mass: float, step: int, fuel_capacity: float, battery_capacity: float, thrust: float, v_e: float, engine_power: float, scoop_power: float, scoop_radius: float, power: float) -> None:
         
-        self.step = step
+        self.name: str = name
+        self.step: float = step
+        self.spacetime: Spacetime = Spacetime(step)
 
-        # Amount that can be stored on the craft
-        self.tank = Tank(self.step, fuel)
-        self.battery = Tank(self.step, battery)
+        self.mass: float = 0
+        self.core_mass: float = mass
 
-        # Thrust parameters
-        self.thrust = thrust
-        self.v_e = v_e
-        self.m_d = self.thrust / self.v_e
-        self.engine_power = engine_power
+        # Fuel storage of this craft
+        self.tank: Tank = Tank('tank', fuel_capacity)
+        self.battery: Tank = Tank('battery', battery_capacity)
+
+        # Thruster parameters
+        self.thrust: float = thrust
+        self.v_e: float = v_e
+        self.m_d: float = self.thrust / self.v_e
+        self.engine_power: float = engine_power
 
         # Scoop parameters
-        self.scoop_r = scoop_r
-        self.scoop_p = scoop_p
+        self.scoop_power: float = scoop_power
+        self.scoop_radius: float = scoop_radius
 
-        # Reactor parameters
-        self.power = power
+        # Generator parameters
+        self.power: float = power
 
-    # Does one step of simulation
-    def __call__(self) -> None:
+        # Used to preview aspects of the craft
+        self.thrust_preview: Vector2 = Vector2()
+        self.scoop_preview: float = 0
+        self.generator_preview: float = 0
 
-        # Generates power
-        self.generate()
+        self.allignment_preview: float = 0
+        self.area_preview: float = 0
+        self.volume_preview: float = 0
 
-        # Scoops hydrogen
-        self.scoop()
-
-        # Fires engines
-        self.force(self.thrust())
-
-        # Updates position and velocty
-        super().__call__(self.step)
+        self.update_mass()
 
     def __str__(self) -> str:
-        f'{self.name}, {self.spacetime.time:.2e}\n\
-            fuel:\t{self.tank.fuel:.2e} kg, battery:\t{self.battery.fuel:.2e}\n\
-            pos:\t{self.pos()} m\n\
-            vel:\t{self.vel()} m/s\n\
-            acc:\t{self.acc()} m/s^2'
+        return f'{self.name}, {self.mass} kg, {self.spacetime.time:.2e} s\n\
+            fuel:\t{self.tank} kg\n\
+            battery:\t{self.battery} J\n\
+            pos:\t{self.spacetime.position} m\n\
+            vel:\t{self.spacetime.velocity} m/s\n\
+            acc:\t{self.spacetime.acceleration_preview} m/s^2\n\
+            thr:\t{self.thrust_preview} N\n\
+            scp:\t{self.scoop_preview}\n\
+            gen:\t{self.generator_preview}'
 
+    # One step of simulation for the craft
+    def __call__(self):
 
+        # Generates power
+        self.generator_preview = self.generate()
 
-    # Fires the engine, producing thrust
-    def fire(self) -> float:
-    
-        # Requests fuel and power
-        reaction_mass, mass_throttle = self.tank.pipe_out(self.m_d * self.step)
-        reaction_power, power_throttle = self.battery.pipe_out(self.engine_power * self.step)
+        # Scoops up hydrogen
+        self.scoop_preview, self.allignment_preview, self.area_preview, self.volume_preview = self.scoop()
 
-        # Refunds fuel and power if one is less than the other
-        reaction_mass, reaction_power = self.refund(reaction_mass, mass_throttle, reaction_power, power_throttle)
+        # Creates thrust
+        thrust = self.fire()
+        self.thrust_preview = thrust
         
-        # Produces thrust
-        return reaction_mass * self.v_e 
-    
+        # Updates mass
+        self.update_mass()
 
-    # If one source doesn't produce enough, then refund the other source
-    def refund(self, fuel, fuel_throttle, power, power_throttle):
+        # Applies thrust
+        self.force(thrust)
+
+        # Steps the craft forward
+        self.spacetime()
+
+    # Craft mass is craft of the parts plus fuel in tank
+    def update_mass(self) -> None:
+        self.mass = self.core_mass + self.tank.fuel
+
+    # Applies a force to the craft
+    def force(self, amount: Vector2) -> None:
+        self.spacetime.acceleration += amount / self.mass
+
+    # Fires the engine
+    def fire(self) -> Vector2:
         
-        # Refunds power if there is less fuel
+        # If the tank is emtpy, return a 0 vector
+        if self.tank.is_empty():
+            return Vector2(0, 0)
+
+        # Obtains some fuel and power
+        fuel, fuel_throttle = self.tank.pipe_out(self.m_d * self.step)
+        power, power_throttle = self.battery.pipe_out(self.engine_power * self.step)
+
+        # Safety check
+        assert fuel_throttle >= 0 and fuel_throttle <= 1, f'Fuel throttle is not within range ({fuel_throttle})'
+        assert power_throttle >= 0 and power_throttle <= 1, f'Fuel throttle is not within range ({power_throttle})'
+
+        # Refunds spare fuel when throttles don't match.
+        # If the throttles match, these values don't change
+        fuel, power = self.refund(fuel, fuel_throttle, power, power_throttle)
+
+        # The thrust generated
+        thrust = fuel * self.v_e
+
+        # Converts the thrust to a vector oriented backwards from the craft
+        return radial_to_cartesian2(thrust, self.spacetime.position.phi())
+    
+    # Refunds when one throttle is lower than the other
+    def refund(self, fuel: float, fuel_throttle: float, power: float, power_throttle: float) -> tuple[float, float]:
         if fuel_throttle < power_throttle:
-
-            power_refund = power * (1 - fuel_throttle / power_throttle)
-            power = power * fuel_throttle / power_throttle
-
-            self.battery.pipe_in(power_refund)
-
-        # Refunds fuel if there is less power
+            return fuel, self.refund_individual(power, power_throttle, self.battery, fuel_throttle)
         elif power_throttle < fuel_throttle:
-            
-            fuel_refund = fuel * (1 - power_throttle / fuel_throttle)
-            fuel = fuel * power_throttle / fuel_throttle
+            return self.refund_individual(fuel, fuel_throttle, self.tank, power_throttle), power
 
-            self.tank.pipe_in(fuel_refund)
-        
-        # Returns the amount of fuel and power
         return fuel, power
+    
+    # Refunds an individual tank
+    def refund_individual(self, fuel: float, fuel_throttle: float, tank, limiting_throttle: float) -> float:
+        fuel_effective = fuel * limiting_throttle / fuel_throttle
+        tank.pipe_in(fuel - fuel_effective)
+        return fuel_effective
 
 
     # Scoops up hydrogen from the ISM
     def scoop(self) -> None:
         
-        # Mass of hydrogen swept
-        hydrogen = self.sweep_hydrogen()
+        # Allignment of scoop to ISM
+        # Cannot be negative; negative corresponds to the craft facing backwards
+        allignment = max(self.spacetime.position.normal() ^ self.spacetime.velocity.normal(), 0)
+        if allignment != allignment: # Check for nan
+            allignment = 0
 
-        # Adds hydrogen to the tank
-        self.tank.pipe_in(hydrogen * self.step)
+        # Power available to the scoop
+        power, throttle = self.battery.pipe_out(self.scoop_power)
 
-    # Returns the mass of hydrogen scooped up 
-    def sweep_hydrogen(self):
-        
-        # Gets the ratio of requested power
-        power_throttle = self.battery.pipe_out(self.scoop_p)[1]
+        # Area of scoop
+        area = np.pi * (self.scoop_radius * throttle) ** 2
 
-        return np.pi * (self.scoop_r * power_throttle) ** 2 * self.pos().normal() ^ self.vel()
+        # Effective volume swept
+        V_eff = area * allignment * self.spacetime.velocity.hypo() * self.step
+
+        # Efficiency of the scoop
+        # The percent of hydrogen the scoop fails to pick up
+        efficiency = 1
+
+        # Mass of hydrogen scooped up
+        m_H = efficiency * V_eff * vacuum_H_mass_density
+
+        # Adds the mass scooped up to the tank
+        self.tank.pipe_in(m_H)
+
+        return m_H, allignment, area, V_eff
 
 
-    # Generates power, adding it to the battery
+    # Generates power
     def generate(self) -> None:
-        self.battery.pipe_in(self.power * self.step)
+        self.battery.pipe_in(self.power)
+        return self.power
 
 
 
-
-# A tank holds fuel or electricity
+# A Tank holds fuel or battery charge
 class Tank:
-    def __init__(self, step, max_fuel) -> None:
+    def __init__(self, name: str, capacity: float) -> None:
+        self.name: str = name
         
-        self.step = step
+        self.capacity: float = capacity
+        self.fuel: float = self.capacity
+    
+    def __str__(self):
+        return f'{self.name}: {self.fuel:.2e} / {self.capacity:.2e} kg'
+
+    # Pipes fuel into the tank
+    def pipe_in(self, amount: float) -> float:
         
-        self.max_fuel = max_fuel
-        self.fuel = self.max_fuel
-
-
-    # Move fuel into or out of this tank
-    def pipe_in(self, fuel) -> None:
-
-        # Adds fuel
-        # Fuel cannot go above max capacity; excess is 'jettisoned overvoard'
-        self.fuel = min(self.fuel + fuel, self.max_fuel)
-
-    def pipe_out(self, fuel) -> float:
+        # Performs a safety check
+        assert amount >= 0, f'Cannot pipe-in negative quantities ({amount})'
         
-        # Pipes out fuel
-        if fuel > self.fuel: # Limits fuel output if there isn't enough
+        # Adds fuel to the tank
+        self.fuel += amount
+
+        # Excess fuel is returned
+        if self.fuel > self.capacity:
+            overflow: float = self.fuel - self.capacity
+            self.fuel = self.capacity
+            return overflow
+        
+        return 0
+
+    # Pipes fuel out of the tank
+    # Second item returned is the throttle, a ratio of supply to request
+    def pipe_out(self, amount: float) -> tuple[float, float]:
+        
+        # Performs a safety check
+        assert amount >= 0, f'Cannot pipe-out negative quantities ({amount})'
+
+        # If the request cannot be fulfilled
+        if amount > self.fuel:
+            outflow = self.fuel # Outputs all remaining fuel
             self.fuel = 0
-            return self.fuel, 1
+            return outflow, outflow / amount
+        
+        # If the request can be fulfilled
         else:
-            throttle = self.fuel / fuel
-            self.fuel -= fuel
-            return fuel, throttle
+            self.fuel -= amount
+            return amount, 1
+    
+    # Checks if the tank is empty
+    def is_empty(self) -> bool:
+        return self.fuel == 0
+
+
+# Oversees the space and time of a thing
+class Spacetime:
+    def __init__(self, step, position: Vector2 = Vector2(), velocity: Vector2 = Vector2(), acceleration: Vector2 = Vector2()) -> None:
+        self.time: float = 0
+        self.steps: float = 0
+        self.step: int = step
+
+        self.position: Vector2 = position
+        self.velocity: Vector2 = velocity
+        self.acceleration: Vector2 = acceleration
+
+        self.acceleration_preview: Vector2 = Vector2()
+    
+    # Updates the space and time
+    def __call__(self):
+
+        # Increments time
+        self.time += self.step
+        self.steps += 1
+
+        # Updates postion and velocity
+        self.velocity += self.acceleration * self.step
+        self.position += self.velocity * self.step
+
+        # Resets acceleration
+        self.acceleration_preview: Vector2 = self.acceleration
+        self.acceleration: Vector2 = Vector2()
