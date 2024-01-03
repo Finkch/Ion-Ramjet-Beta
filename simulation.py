@@ -71,6 +71,18 @@ class Simulation:
         print('All done!')
 
 
+    
+    # Gets a full snapshot at this step
+    def preview(self):
+        return {
+            'step': self.step,
+            'steps': self.steps,
+            'sim_time': self.sim_time,
+            'real_time': self.clock.sim_time,
+            'ramjet': self.ramjet.get_previews()
+        }
+
+
 
     # A list of ending conditions
     def tank_empty(self) -> None:

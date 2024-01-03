@@ -81,11 +81,16 @@ class Ramjet:
     
     def get_previews(self):
         return {
-            self.tank.name:         self.tank.get_preview(),
-            self.battery.name:      self.battery.get_preview(),
-            self.thruster.name:     self.thruster.get_preview(),
-            self.scooper.name:      self.scooper.get_preview(),
-            self.generator.name:    self.generator.get_preview()
+            'parts': {
+                self.tank.name:         self.tank.get_preview(),
+                self.battery.name:      self.battery.get_preview(),
+                self.thruster.name:     self.thruster.get_preview(),
+                self.scooper.name:      self.scooper.get_preview(),
+                self.generator.name:    self.generator.get_preview(),
+            },
+            'spacetime':    self.spacetime.get_preview(),
+            'mass':         self.mass,
+            'name':         self.name
         }
 
 
