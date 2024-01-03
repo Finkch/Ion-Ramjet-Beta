@@ -2,7 +2,7 @@
 
 from finkchlib.vector import radial_to_cartesian2, Vector2
 from finkchlib.constants import vacuum_H_mass_density
-from spacetime import Spacetime
+from spacetime import RelativisticSpacetime
 import numpy as np
 
 # A ramjet is our basic spacecraft.
@@ -11,7 +11,7 @@ class Ramjet:
     def __init__(self, name: str, mass: float, fuel_capacity: float, battery_capacity: float, thrust: float, v_e: float, engine_power: float, scoop_power: float, scoop_radius: float, power: float) -> None:
         
         self.name: str = name
-        self.spacetime: Spacetime = Spacetime()
+        self.spacetime: RelativisticSpacetime = RelativisticSpacetime()
 
         self.mass: float = 0
         self.core_mass: float = mass
