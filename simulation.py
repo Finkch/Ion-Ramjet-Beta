@@ -23,7 +23,7 @@ class Simulation:
         # The craft to simulate
         # X_e   = 131.293 u
         # H     = 1.00784 u
-        self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, self.step, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
+        self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
         self.ramjet.spacetime.position = Vector2(1, 0)
     
     # Simulation loop
@@ -36,7 +36,7 @@ class Simulation:
             self.steps += 1
 
             # Simulates the ramjet
-            self.ramjet()
+            self.ramjet(self.step)
             
             # Checks whether the simulation can end
             self.check_end()
@@ -48,16 +48,18 @@ class Simulation:
     # Performs a printout
     def printout(self):
         print('\n\n')
-        print(f'Real time: {self.clock} -> {self.clock.sim_time:.2e} s')
-        print(f'Sim time:  {readable_time(self.sim_time)} -> {self.sim_time:.2e} s')
-        print(f'Steps per second: {self.steps / self.clock.sim_time:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
+        print(f'Rate:\t\t\t{self.step:.0f} s : 1 step')
+        print(f'Real time:\t\t{self.clock} -> {self.clock.sim_time:.2e} s')
+        print(f'Sim time:\t\t{readable_time(self.sim_time)} -> {self.sim_time:.2e} s')
+        print(f'Sim time\':\t\t{readable_time(self.ramjet.spacetime.time)} -> {self.ramjet.spacetime.time:.2e} s')
+        print(f'Steps per second:\t{self.steps / self.clock.sim_time:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
         print(self.ramjet)
 
     # Check if the simulation should end
     def check_end(self):
 
         # One end condition: tank is empty
-        # Thisis not always a condition
+        # This is not always a condition
         #self.tank_empty()
 
         # Safety end condition: a century of steps (not time!) has past

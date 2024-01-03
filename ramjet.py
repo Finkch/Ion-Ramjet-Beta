@@ -2,17 +2,16 @@
 
 from finkchlib.vector import radial_to_cartesian2, Vector2
 from finkchlib.constants import vacuum_H_mass_density
-from spacetime import Spacetime
+from spacetime import RelativisticSpacetime
 import numpy as np
 
 # A ramjet is our basic spacecraft.
 # This class will act like an interface for our proper crafts
 class Ramjet:
-    def __init__(self, name: str, mass: float, step: int, fuel_capacity: float, battery_capacity: float, thrust: float, v_e: float, engine_power: float, scoop_power: float, scoop_radius: float, power: float) -> None:
+    def __init__(self, name: str, mass: float, fuel_capacity: float, battery_capacity: float, thrust: float, v_e: float, engine_power: float, scoop_power: float, scoop_radius: float, power: float) -> None:
         
         self.name: str = name
-        self.step: float = step
-        self.spacetime: Spacetime = Spacetime(step)
+        self.spacetime: RelativisticSpacetime = RelativisticSpacetime()
 
         self.mass: float = 0
         self.core_mass: float = mass
@@ -29,42 +28,41 @@ class Ramjet:
         self.update_mass()
 
     def __str__(self) -> str:
-        return f'{self.name}, {self.mass} kg\n\
-            fuel:\t{self.tank} kg\n\
-            battery:\t{self.battery} J\n\
+        return f'{self.name},\t\t{self.mass} kg\n\
+            fuel:\t{self.tank}  kg\n\
+            battery:\t{self.battery}  J\n\
             pos:\t{self.spacetime.position} m\n\
             vel:\t{self.spacetime.velocity} m/s\n\
             acc:\t{self.spacetime.acceleration_preview} m/s^2'
 
     # One step of simulation for the craft
-    def __call__(self):
+    def __call__(self, step):
 
         # Generates power
-        self.generator(self)
+        self.generator(self, step)
 
         # Scoops up hydrogen
-        self.scooper(self)
+        self.scooper(self, step)
 
         # Creates thrust
-        thrust = self.thruster(self)
+        thrust = self.thruster(self, step)
         
         # Updates mass
         self.update_mass()
 
         # Applies thrust
-        self.force(thrust)
+        self.spacetime.force(self.mass, thrust)
 
         # Steps the craft forward
-        self.spacetime()
+        self.spacetime(step)
 
     # Craft mass is craft of the parts plus fuel in tank
     def update_mass(self) -> None:
         self.mass = self.core_mass + self.tank.fuel
 
     # Applies a force to the craft
-    def force(self, amount: Vector2) -> None:
-        self.spacetime.acceleration += amount / self.mass
-
+    def force(self, amount) -> None:
+        self.spacetime.force(self.mass, amount)
     
     # Refunds when one throttle is lower than the other
     def refund(self, fuel: float, fuel_throttle: float, power: float, power_throttle: float) -> tuple[float, float]:
@@ -110,7 +108,7 @@ class Tank(Part):
         self.fuel: float = self.capacity
     
     def __str__(self):
-        return f'{self.name}: {self.fuel:.2e} / {self.capacity:.2e} kg'
+        return f'{self.fuel:.2e} / {self.capacity:.2e}'
 
     # Pipes fuel into the tank
     def pipe_in(self, amount: float) -> float:
@@ -177,15 +175,15 @@ class Thruster(Part):
         self.power: float = power
 
     # Call a Thruster converts fuel and power to thrust; it fires the engines
-    def __call__(self, ramjet: Ramjet) -> Vector2:
+    def __call__(self, ramjet: Ramjet, step: float) -> Vector2:
         
         # If the tank is emtpy, return a 0 vector
         if ramjet.tank.is_empty():
             return Vector2(0, 0)
 
         # Obtains some fuel and power
-        fuel, fuel_throttle = ramjet.tank.pipe_out(self.m_d * ramjet.step)
-        power, power_throttle = ramjet.battery.pipe_out(self.power * ramjet.step)
+        fuel, fuel_throttle = ramjet.tank.pipe_out(self.m_d * step)
+        power, power_throttle = ramjet.battery.pipe_out(self.power * step)
 
         # Safety check
         assert fuel_throttle >= 0 and fuel_throttle <= 1, f'Fuel throttle is not within range ({fuel_throttle})'
@@ -222,7 +220,7 @@ class Scoop(Part):
         self.efficiency = efficiency # Scalar E [0, 1]
 
     # Calling a Scoop scoops up H from the ISM
-    def __call__(self, ramjet: Ramjet) -> float:
+    def __call__(self, ramjet: Ramjet, step: float) -> float:
         
         # Allignment of scoop to ISM
         # Cannot be negative; negative corresponds to the craft facing backwards
@@ -237,7 +235,7 @@ class Scoop(Part):
         area = np.pi * (self.radius * throttle) ** 2
 
         # Effective volume swept
-        V_eff = area * allignment * ramjet.spacetime.velocity.hypo() * ramjet.step
+        V_eff = area * allignment * ramjet.spacetime.velocity.hypo() * step
 
         # Mass of hydrogen scooped up
         m_H = self.efficiency * V_eff * vacuum_H_mass_density
@@ -264,8 +262,8 @@ class Generator(Part):
         self.power = power
 
     # Calling a Generator provides power to the battery
-    def __call__(self, ramjet: Ramjet) -> float:
-        ramjet.battery.pipe_in(self.power)
+    def __call__(self, ramjet: Ramjet, step: float) -> float:
+        ramjet.battery.pipe_in(self.power * step)
         
         # Updates the part's preview
         self.preview = {
