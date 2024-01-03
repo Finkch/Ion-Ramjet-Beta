@@ -21,3 +21,7 @@ class Spacetime:
         # Resets acceleration
         self.acceleration_preview: Vector2 = self.acceleration
         self.acceleration: Vector2 = Vector2()
+
+    # Applies a force to the craft
+    def force(self, mass, amount: Vector2) -> None:
+        self.acceleration += amount / mass

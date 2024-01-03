@@ -52,7 +52,7 @@ class Ramjet:
         self.update_mass()
 
         # Applies thrust
-        self.force(thrust)
+        self.spacetime.force(self.mass, thrust)
 
         # Steps the craft forward
         self.spacetime()
@@ -60,11 +60,6 @@ class Ramjet:
     # Craft mass is craft of the parts plus fuel in tank
     def update_mass(self) -> None:
         self.mass = self.core_mass + self.tank.fuel
-
-    # Applies a force to the craft
-    def force(self, amount: Vector2) -> None:
-        self.spacetime.acceleration += amount / self.mass
-
     
     # Refunds when one throttle is lower than the other
     def refund(self, fuel: float, fuel_throttle: float, power: float, power_throttle: float) -> tuple[float, float]:
