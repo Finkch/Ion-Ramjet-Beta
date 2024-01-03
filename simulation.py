@@ -16,6 +16,10 @@ class Simulation:
         # Seconds per simulation step
         self.step: float = rate
 
+        # Keep track of simulation parameters
+        self.steps = 0
+        self.sim_time = 0
+
         # The craft to simulate
         # X_e   = 131.293 u
         # H     = 1.00784 u
@@ -28,6 +32,8 @@ class Simulation:
             
             # Stamps time taken for sim step
             self.clock()
+            self.sim_time += self.step
+            self.steps += 1
 
             # Simulates the ramjet
             self.ramjet()
@@ -42,7 +48,9 @@ class Simulation:
     # Performs a printout
     def printout(self):
         print('\n\n')
-        print(f'{self.clock} -> {self.clock.sim_time:.2e}')
+        print(f'Real time: {self.clock} -> {self.clock.sim_time:.2e} s')
+        print(f'Sim time:  {readable_time(self.sim_time)} -> {self.sim_time:.2e} s')
+        print(f'Steps per second: {self.steps / self.clock.sim_time:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
         print(self.ramjet)
 
     # Check if the simulation should end
@@ -58,11 +66,6 @@ class Simulation:
     # Hanldes the end of the simulation
     def end(self):
         self.printout()
-
-        self.clock.real_time.stamp()
-        delta = (self.clock.real_time.peek() - self.clock.real_time.start) / 1000
-        print(f'Real time: {delta:.2e}')
-        print(f'Steps per second: {self.ramjet.spacetime.steps / delta:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
         print('All done!')
 
 
@@ -74,7 +77,7 @@ class Simulation:
 
     # Safety condition
     def heat_death(self) -> None:
-        if self.ramjet.spacetime.time > 2 * day:
+        if self.steps > 2 * day:
             self.exist = False
 
 
@@ -96,3 +99,16 @@ class DebugSimulation(Simulation):
 
         self.end()
 
+
+
+def readable_time(time: float):
+    # Converts time to a human-readable format
+    time = int(time)
+
+    return "{years:.2e} y, {days:03} d, {hours:02} h, {minutes:02} m, {seconds:02} s".format(
+        years = time // year,
+        days = (time // day) % 365,
+        hours = (time // hour) % 24,
+        minutes = (time // minute) % 60,
+        seconds = time % 60
+    )
