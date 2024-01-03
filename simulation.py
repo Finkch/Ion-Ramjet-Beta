@@ -48,7 +48,7 @@ class Simulation:
     # Performs a printout
     def printout(self):
         print('\n\n')
-        print(f'Rate:\t\t\t{self.step:.2e}x')
+        print(f'Rate:\t\t\t{self.step:.0f} s : 1 step')
         print(f'Real time:\t\t{self.clock} -> {self.clock.sim_time:.2e} s')
         print(f'Sim time:\t\t{readable_time(self.sim_time)} -> {self.sim_time:.2e} s')
         print(f'Sim time\':\t\t{readable_time(self.ramjet.spacetime.time)} -> {self.ramjet.spacetime.time:.2e} s')
