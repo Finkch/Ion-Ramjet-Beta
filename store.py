@@ -5,14 +5,14 @@ import sys
 
 # A Store stores data
 class Store:
-    def __init__(self, initial_data = None) -> None:
-        self.data = []
+    def __init__(self, file: str, initial_data = None) -> None:
+        self.data: list = []
         
         # Tracks whether to overwrite or append
-        self.first_write = True
+        self.first_write: bool = True
         
         # The file to which to write
-        self.file = 'temp.txt'
+        self.file: str = 'temp.txt'
 
         # If supplied with some starting data, write it out immediatly
         if initial_data:
@@ -20,7 +20,7 @@ class Store:
             self.write()
 
     # Adds the data to the array
-    def add(self, data) -> None:
+    def add(self, data: dict) -> None:
         self.data.append(data)
 
         # If we're storing more than a gigabyte, write it out
