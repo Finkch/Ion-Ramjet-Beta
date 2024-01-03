@@ -38,16 +38,19 @@ class RelativisticSpacetime(Spacetime):
     def __init__(self, position: Vector2 = Vector2(), velocity: Vector2 = Vector2(), acceleration: Vector2 = Vector2()) -> None:
         super().__init__(position, velocity, acceleration)
 
-        gamma = self.gamma()
     def __call__(self, step: float) -> None:
+        gamma = self.gamma(self.velocity)
 
-        # Increases time experiences
-        self.time += self.step / gamma
+        # Increases time experienced
+        step_size = step / gamma
+        
+        # Steps forward in time'
+        super().__call__(step_size)
 
 
     # Returns some useful factors
-    def gamma(self) -> float:
-        return 1 / (1 - self.beta() ** 2)
+    def gamma(self, velocity: Vector2) -> float:
+        return 1 / (1 - self.beta(velocity) ** 2)
     
-    def beta(self) -> float:
-        return self.velocity.hypo() / c
+    def beta(self, velocity: Vector2) -> float:
+        return velocity.hypo() / c
