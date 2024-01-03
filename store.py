@@ -43,8 +43,6 @@ class Store:
         # Since we're done writing, clear data
         self.data = []
 
-        print('Write!')
-
     # Returns how large the data size is
     def data_size(self) -> int:
         return sys.getsizeof(self.data)
