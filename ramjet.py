@@ -28,9 +28,9 @@ class Ramjet:
         self.update_mass()
 
     def __str__(self) -> str:
-        return f'{self.name}, {self.mass} kg\n\
-            fuel:\t{self.tank} kg\n\
-            battery:\t{self.battery} J\n\
+        return f'{self.name},\t\t{self.mass} kg\n\
+            fuel:\t{self.tank}  kg\n\
+            battery:\t{self.battery}  J\n\
             pos:\t{self.spacetime.position} m\n\
             vel:\t{self.spacetime.velocity} m/s\n\
             acc:\t{self.spacetime.acceleration_preview} m/s^2'
@@ -108,7 +108,7 @@ class Tank(Part):
         self.fuel: float = self.capacity
     
     def __str__(self):
-        return f'{self.name}: {self.fuel:.2e} / {self.capacity:.2e} kg'
+        return f'{self.fuel:.2e} / {self.capacity:.2e}'
 
     # Pipes fuel into the tank
     def pipe_in(self, amount: float) -> float:
