@@ -50,6 +50,7 @@ class Simulation:
         print('\n\n')
         print(f'Real time: {self.clock} -> {self.clock.sim_time:.2e} s')
         print(f'Sim time:  {readable_time(self.sim_time)} -> {self.sim_time:.2e} s')
+        print(f'Sim time\':  {readable_time(self.ramjet.spacetime.time)} -> {self.ramjet.spacetime.time:.2e} s')
         print(f'Steps per second: {self.steps / self.clock.sim_time:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
         print(self.ramjet)
 
