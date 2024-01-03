@@ -8,7 +8,7 @@ from ramjet import Ramjet
 from store import Store
 
 class Simulation:
-    def __init__(self, rate: float, framerate: float) -> None:
+    def __init__(self, rate: float, framerate: float, file: str) -> None:
         self.exist: bool = True
 
         # Used to track performance
@@ -29,7 +29,7 @@ class Simulation:
 
 
         # Used to store data at each step
-        self.store: Store = Store({'step_size': self.step, 'name': self.ramjet.name})
+        self.store: Store = Store(file, {'step_size': self.step, 'name': self.ramjet.name})
     
     # Simulation loop
     def __call__(self):
@@ -110,8 +110,8 @@ class Simulation:
 # The same as Simulation but the steps are taken at a rate of 1:1 with printouts.
 # Only DebugSim can perform printouts
 class DebugSimulation(Simulation):
-    def __init__(self, rate: float, framerate: float) -> None:
-        super().__init__(rate, framerate)
+    def __init__(self, rate: float, framerate: float, file: str) -> None:
+        super().__init__(rate, framerate, file)
 
     def __call__(self) -> None:
         while self.exist:
