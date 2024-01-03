@@ -5,6 +5,7 @@ from finkchlib.orders import Time
 from finkchlib.vector import Vector2
 from finkchlib.constants import *
 from ramjet import Ramjet
+from store import Store
 
 class Simulation:
     def __init__(self, rate: float, framerate: float) -> None:
@@ -25,10 +26,16 @@ class Simulation:
         # H     = 1.00784 u
         self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
         self.ramjet.spacetime.position = Vector2(1, 0)
+
+        # Initial push
+        self.store: Store = Store({'step_size': self.step, 'name': self.ramjet.name})
     
     # Simulation loop
     def __call__(self):
         while self.exist:
+            
+            # Adds snapshot to data store
+            self.store.add(self.preview())
             
             # Stamps time taken for sim step
             self.clock()
@@ -40,6 +47,10 @@ class Simulation:
             
             # Checks whether the simulation can end
             self.check_end()
+
+        # Adds final snapshot; writes any remaining data
+        self.store.add(self.preview())
+        self.store.write()
 
         # Handles the end of the simulation
         self.end()
@@ -75,7 +86,6 @@ class Simulation:
     # Gets a full snapshot at this step
     def preview(self):
         return {
-            'step': self.step,
             'steps': self.steps,
             'sim_time': self.sim_time,
             'real_time': self.clock.sim_time,
