@@ -27,7 +27,8 @@ class Simulation:
         self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
         self.ramjet.spacetime.position = Vector2(1, 0)
 
-        # Initial push
+
+        # Used to store data at each step
         self.store: Store = Store({'step_size': self.step, 'name': self.ramjet.name})
     
     # Simulation loop
