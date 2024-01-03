@@ -4,6 +4,7 @@ from finkchlib.vector import Vector2
 class Spacetime:
     def __init__(self, step, position: Vector2 = Vector2(), velocity: Vector2 = Vector2(), acceleration: Vector2 = Vector2()) -> None:
         self.step: int = step
+        self.time = 0
 
         self.position: Vector2 = position
         self.velocity: Vector2 = velocity
@@ -13,6 +14,9 @@ class Spacetime:
     
     # Updates the space and time
     def __call__(self):
+
+        # Increases the amount of time experienced
+        self.time += self.step
 
         # Updates postion and velocity
         self.velocity += self.acceleration * self.step
