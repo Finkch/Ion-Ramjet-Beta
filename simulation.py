@@ -23,7 +23,7 @@ class Simulation:
         # The craft to simulate
         # X_e   = 131.293 u
         # H     = 1.00784 u
-        self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, self.step, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
+        self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
         self.ramjet.spacetime.position = Vector2(1, 0)
     
     # Simulation loop
@@ -36,7 +36,7 @@ class Simulation:
             self.steps += 1
 
             # Simulates the ramjet
-            self.ramjet()
+            self.ramjet(self.step)
             
             # Checks whether the simulation can end
             self.check_end()
