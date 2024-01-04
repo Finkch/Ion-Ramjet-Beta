@@ -12,7 +12,10 @@ def main():
     # Desired framerate for printouts
     framerate = 1000 / 60 if not debug else 1000
 
-    simulation = Simulation(rate, framerate) if not debug else DebugSimulation(rate, framerate) 
+    # The file to store data in
+    file = 'temp.txt'
+
+    simulation = Simulation(rate, framerate, file) if not debug else DebugSimulation(rate, framerate, file) 
 
     simulation()
 

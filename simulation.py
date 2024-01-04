@@ -5,9 +5,10 @@ from finkchlib.orders import Time
 from finkchlib.vector import Vector2
 from finkchlib.constants import *
 from ramjet import Ramjet
+from store import Store
 
 class Simulation:
-    def __init__(self, rate: float, framerate: float) -> None:
+    def __init__(self, rate: float, framerate: float, file: str) -> None:
         self.exist: bool = True
 
         # Used to track performance
@@ -25,10 +26,17 @@ class Simulation:
         # H     = 1.00784 u
         self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
         self.ramjet.spacetime.position = Vector2(1, 0)
+
+
+        # Used to store data at each step
+        self.store: Store = Store(file, {'step_size': self.step, 'name': self.ramjet.name})
     
     # Simulation loop
     def __call__(self):
         while self.exist:
+            
+            # Adds snapshot to data store
+            self.store.add(self.preview())
             
             # Stamps time taken for sim step
             self.clock()
@@ -40,6 +48,10 @@ class Simulation:
             
             # Checks whether the simulation can end
             self.check_end()
+
+        # Adds final snapshot; writes any remaining data
+        self.store.add(self.preview())
+        self.store.write()
 
         # Handles the end of the simulation
         self.end()
@@ -71,6 +83,17 @@ class Simulation:
         print('All done!')
 
 
+    
+    # Gets a full snapshot at this step
+    def preview(self):
+        return {
+            'steps': self.steps,
+            'sim_time': self.sim_time,
+            'real_time': self.clock.sim_time,
+            'ramjet': self.ramjet.get_previews()
+        }
+
+
 
     # A list of ending conditions
     def tank_empty(self) -> None:
@@ -87,8 +110,8 @@ class Simulation:
 # The same as Simulation but the steps are taken at a rate of 1:1 with printouts.
 # Only DebugSim can perform printouts
 class DebugSimulation(Simulation):
-    def __init__(self, rate: float, framerate: float) -> None:
-        super().__init__(rate, framerate)
+    def __init__(self, rate: float, framerate: float, file: str) -> None:
+        super().__init__(rate, framerate, file)
 
     def __call__(self) -> None:
         while self.exist:

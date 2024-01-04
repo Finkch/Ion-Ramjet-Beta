@@ -31,6 +31,20 @@ class Spacetime:
     def force(self, mass, amount: Vector2) -> None:
         self.acceleration += amount / mass
 
+    def get_preview(self):
+        return {
+            'time': self.time,
+            'pos': self.position.hypo(),
+            'pos_x': self.position.x,
+            'pos_y': self.position.y,
+            'vel': self.velocity.hypo(),
+            'vel_x': self.velocity.x,
+            'vel_y': self.velocity.y,
+            'acc': self.acceleration_preview.hypo(),
+            'acc_x': self.acceleration_preview.x,
+            'acc_y': self.acceleration_preview.y
+        }
+
 
 # A spacetime that incorporates special relativity.
 # Same as spacetime, but from an observer on the ground
