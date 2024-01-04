@@ -26,7 +26,7 @@ class Store:
 
     # Adds the data to the array
     def add(self, data: dict) -> None:
-        self.data.append(data)
+        self.unflattened.append(data)
 
         # If we're storing more than a gigabyte, write it out
         if self.data_size() > 1e9:
@@ -42,15 +42,15 @@ class Store:
         
         # Writes the data
         with open(self.file, flag) as file:
-            for step in self.data:
+            for step in self.unflattened:
                 file.write(str(step) + '\n')
 
         # Since we're done writing, clear data
-        self.data = []
+        self.unflattened= []
 
     # Returns how large the data size is
     def data_size(self) -> int:
-        return sys.getsizeof(self.data)
+        return sys.getsizeof(self.unflattened)
     
 
 
