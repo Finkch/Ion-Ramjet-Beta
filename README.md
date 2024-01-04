@@ -17,10 +17,13 @@
     #       'name':         $ramjet_name,
     #       'spacetime': {
     #           'time':     $time_experienced
+    #           'pos':      $position_relative_to_origin,
     #           'pos_x':    $x_position,
     #           'pos_y':    $y_position,
+    #           'vel':      $velocity_relative_to_origin,
     #           'vel_x':    $x_velocity,
     #           'vel_y':    $y_velocity,
+    #           'acc':      $acceleration_relative_to_origin,
     #           'acc_x':    $x_acceleration,
     #           'acc_y':    $y_acceleration
     #       },
@@ -65,10 +68,13 @@
 - ramjet-parts-battery-fuel
 - ramjet-parts-battery-capacity
 - ramjet-spacetime-time
+- ramjet-spacetime-pos
 - ramjet-spacetime-pos_x
 - ramjet-spacetime-pos_y
+- ramjet-spacetime-vel
 - ramjet-spacetime-vel_x
 - ramjet-spacetime-vel_y
+- ramjet-spacetime-acc
 - ramjet-spacetime-acc_x
 - ramjet-spacetime-acc_y
 - ramjet-mass

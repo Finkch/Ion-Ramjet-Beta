@@ -34,10 +34,13 @@ class Spacetime:
     def get_preview(self):
         return {
             'time': self.time,
+            'pos': self.position.hypo(),
             'pos_x': self.position.x,
             'pos_y': self.position.y,
+            'vel': self.velocity.hypo(),
             'vel_x': self.velocity.x,
             'vel_y': self.velocity.y,
+            'acc': self.acceleration_preview.hypo(),
             'acc_x': self.acceleration_preview.x,
             'acc_y': self.acceleration_preview.y
         }
