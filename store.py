@@ -21,7 +21,7 @@ class Store:
 
         # If supplied with some starting data, write it out immediatly
         if initial_data:
-            self.data.append(initial_data)
+            self.unflattened.append(initial_data)
             self.write()
 
     # Adds the data to the array
