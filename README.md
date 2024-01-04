@@ -2,7 +2,7 @@
  A physics simulation to model to effectiveness of a prosposed method of interstellar travel: ion ramjets. An ion ramjet uses the proven technology of ion thrusters in combination with the still sci-fi magnetic scoop to pick up fuel as it travels in the form of hydrogen from the insterstellar medium (ISM).
 
 
-# Data Storage Format
+# Data Storage Format in File
  Data is stored as a string of Python dictionaries. Each line corresponds to one step of the simulation, aside from line 0 which is some initial data, such as the simulation rate. Here is the format of stored data:
     # 0: {
     #   'step': $step_size
@@ -54,3 +54,34 @@
     #       }
     #   }
     # }
+
+# Data Storage Format in Plotter
+ Plotter stores data a bit differently. Since it would we want to plot a single parameter, we would need to iterate over each line to extract data for the Plotter, so it flattens the data. The list of dictionaries is converted to a dictionary of lists. The keys change to:
+- steps
+- sim_time
+- real_time
+- ramjet-parts-tank-fuel
+- ramjet-parts-tank-capacity
+- ramjet-parts-battery-fuel
+- ramjet-parts-battery-capacity
+- ramjet-spacetime-time
+- ramjet-spacetime-pos_x
+- ramjet-spacetime-pos_y
+- ramjet-spacetime-vel_x
+- ramjet-spacetime-vel_y
+- ramjet-spacetime-acc_x
+- ramjet-spacetime-acc_y
+- ramjet-mass
+- ramjet-name
+- ramjet-parts-thruster-thrust
+- ramjet-parts-thruster-fuel
+- ramjet-parts-thruster-fuel_throttle
+- ramjet-parts-thruster-power
+- ramjet-parts-thruster-power_throttle
+- ramjet-parts-scoop-m_H
+- ramjet-parts-scoop-power
+- ramjet-parts-scoop-power_throttle
+- ramjet-parts-scoop-allignment
+- ramjet-parts-scoop-area
+- ramjet-parts-scoop-volume
+- ramjet-parts-generator-power
