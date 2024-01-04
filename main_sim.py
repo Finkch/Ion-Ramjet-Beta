@@ -1,7 +1,6 @@
 # This file gets the ball rolling
 
 from simulation import *
-from plot import Plotter
 
 # Gets everything going
 def main():
