@@ -46,7 +46,7 @@ class Store:
                 file.write(str(step) + '\n')
 
         # Since we're done writing, clear data
-        self.unflattened= []
+        self.unflattened = []
 
     # Returns how large the data size is
     def data_size(self) -> int:
