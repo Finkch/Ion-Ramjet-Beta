@@ -1,6 +1,7 @@
 # This file gets the ball rolling
 
 from simulation import *
+from plot import Plotter
 
 # Gets everything going
 def main():
@@ -14,6 +15,8 @@ def main():
 
     # The file to store data in
     file = 'temp.txt'
+
+    simulation = Simulation(rate, framerate, file) if not debug else DebugSimulation(rate, framerate, file) 
 
     simulation()
 
