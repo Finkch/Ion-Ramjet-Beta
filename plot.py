@@ -1,6 +1,7 @@
 # Plots data
 
 import json
+import matplotlib as mpl
 
 # Responsible for plotting data from text files
 class Plotter:
@@ -16,7 +17,33 @@ class Plotter:
         # Reads the data to memory
         self.read()
 
+
+    # Calling Plotter plots data
+    def __call__(self, x_key: str, y_key: str, plot_name: str, axes_names: list[str, str]) -> None:
+        
+        # Grabs the necessary data
+        x = self.data[x_key]
+        y = self.data[y_key]
+
+        # Grabs the figure and axes
+        figure, axes = mpl.subplots()
+
+        # Plots the data
+        #axes.plot(x, y, marker = "o", markersize = 3, linestyle = "None", c = "#ff7f0f")
+        axes.plot(x, y, linestyle = 'None')
+
+        # Sets the title
+        axes.set_title(plot_name)
+
+        # Sets axes names
+        mpl.xlabel(axes_names[0])
+        mpl.ylabel(axes_names[1])
+
+        # Shows plot
+        mpl.show()
     
+
+
     # Loads the text file to memory
     def read(self) -> None:
         with open(self.file, 'r') as file:
