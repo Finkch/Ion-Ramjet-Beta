@@ -6,9 +6,10 @@ from finkchlib.vector import Vector2
 from finkchlib.constants import *
 from ramjet import Ramjet
 from store import Store
+import hangar
 
 class Simulation:
-    def __init__(self, rate: float, framerate: float, file: str) -> None:
+    def __init__(self, rate: float, framerate: float, ramjet: str, file: str) -> None:
         self.exist: bool = True
 
         # Used to track performance
@@ -21,11 +22,9 @@ class Simulation:
         self.steps = 0
         self.sim_time = 0
 
+
         # The craft to simulate
-        # X_e   = 131.293 u
-        # H     = 1.00784 u
-        self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
-        self.ramjet.spacetime.position = Vector2(1, 0)
+        self.ramjet: Ramjet = hangar.get_ramjet(ramjet)
 
 
         # Used to store data at each step
@@ -127,8 +126,8 @@ class Simulation:
 # The same as Simulation but the steps are taken at a rate of 1:1 with printouts.
 # Only DebugSim can perform printouts
 class DebugSimulation(Simulation):
-    def __init__(self, rate: float, framerate: float, file: str) -> None:
-        super().__init__(rate, framerate, file)
+    def __init__(self, rate: float, framerate: float, ramjet: str, file: str) -> None:
+        super().__init__(rate, framerate, ramjet, file)
 
     def __call__(self) -> None:
         while self.exist:

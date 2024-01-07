@@ -5,6 +5,8 @@ from simulation import *
 # Gets everything going
 def main():
     
+    ramjet = 'ioRam-Beta'
+
     debug = False
 
     rate = 1
@@ -15,7 +17,7 @@ def main():
     # The file to store data in
     file = 'temp.txt'
 
-    simulation = Simulation(rate, framerate, file) if not debug else DebugSimulation(rate, framerate, file) 
+    simulation = Simulation(rate, framerate, ramjet, file) if not debug else DebugSimulation(rate, framerate, ramjet, file) 
 
     simulation()
 
