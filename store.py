@@ -8,9 +8,6 @@ class Store:
     def __init__(self, file: str, initial_data = None) -> None:
         self.data: list = []
         
-        # Tracks whether to overwrite or append
-        self.first_write: bool = True
-        
         # The file to which to write
         self.file: str = 'temp.txt'
 
@@ -33,20 +30,27 @@ class Store:
             self.write()
 
     # Writes data to text
-    def write(self) -> None:
+    def write(self, dictionary: list | dict = None, flag = 'a') -> None:
         
-        # Gets the correct flag.
-        # We want to clear data from the previous simulation, but add to the current
-        flag = 'w' if self.first_write else 'a'
-        self.first_write = False # Updates
+        # Sets the default thing to write
+        if not dictionary:
+            dictionary = self.unflattened
         
         # Writes the data
         with open(self.file, flag) as file:
-            for step in self.unflattened:
-                file.write(str(step) + '\n')
+            for step in dictionary:
+
+                # Writes a dictionary
+                if isinstance(dictionary, dict):
+                    file.write(f"{step}:{dictionary[step]}\n")
+                
+                # Writes a list
+                else:
+                    file.write(f'{str(step)}\n')
 
         # Since we're done writing, clear data
         self.unflattened = []
+        self.data = {}
 
     # Returns how large the data size is
     def data_size(self) -> int:
