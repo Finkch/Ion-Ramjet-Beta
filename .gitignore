@@ -1,6 +1,9 @@
 # Also ignore the data file
 temp.txt
 
+# Darn, iCloud!
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

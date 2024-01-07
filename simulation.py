@@ -6,9 +6,10 @@ from finkchlib.vector import Vector2
 from finkchlib.constants import *
 from ramjet import Ramjet
 from store import Store
+import hangar
 
 class Simulation:
-    def __init__(self, rate: float, framerate: float, file: str) -> None:
+    def __init__(self, rate: float, framerate: float, ramjet: str, file: str) -> None:
         self.exist: bool = True
 
         # Used to track performance
@@ -21,18 +22,21 @@ class Simulation:
         self.steps = 0
         self.sim_time = 0
 
+
         # The craft to simulate
-        # X_e   = 131.293 u
-        # H     = 1.00784 u
-        self.ramjet: Ramjet = Ramjet('ioRamjet-Beta', 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
-        self.ramjet.spacetime.position = Vector2(1, 0)
+        self.ramjet: Ramjet = hangar.get_ramjet(ramjet)
 
 
         # Used to store data at each step
         self.store: Store = Store(file, {'step_size': self.step, 'name': self.ramjet.name})
     
-    # Simulation loop
+    # Calling Simulation begins simulation loop
     def __call__(self):
+
+        # Stamps start of simulation
+        self.clock.real_time.stamp()
+
+        # Simulation loop
         while self.exist:
             
             # Adds snapshot to data store
@@ -49,10 +53,6 @@ class Simulation:
             # Checks whether the simulation can end
             self.check_end()
 
-        # Adds final snapshot; writes any remaining data
-        self.store.add(self.preview())
-        self.store.write()
-
         # Handles the end of the simulation
         self.end()
 
@@ -61,9 +61,11 @@ class Simulation:
     def printout(self):
         print('\n\n')
         print(f'Rate:\t\t\t{self.step:.0f} s : 1 step')
-        print(f'Real time:\t\t{self.clock} -> {self.clock.sim_time:.2e} s')
+        print(f'Total time:\t\t{readable_time((self.clock.real_time.peek_dif(1) + self.clock.real_time.peek_dif(0)) / 1000)} -> {(self.clock.real_time.peek_dif(1) + self.clock.real_time.peek_dif(0)) / 1000:.2e} s')
+        print(f'Time to simulate:\t{readable_time(self.clock.real_time.peek_dif(1) / 1000)} -> {self.clock.real_time.peek_dif(1) / 1000:.2e} s')
+        print(f'Time to store:\t\t{readable_time(self.clock.real_time.peek_dif()/ 1000)} -> {self.clock.real_time.peek_dif()/ 1000:.2e} s')
         print(f'Sim time:\t\t{readable_time(self.sim_time)} -> {self.sim_time:.2e} s')
-        print(f'Sim time\':\t\t{readable_time(self.ramjet.spacetime.time)} -> {self.ramjet.spacetime.time:.2e} s')
+        print(f'Ramjet time (dilated):\t{readable_time(self.ramjet.spacetime.time)} -> {self.ramjet.spacetime.time:.2e} s')
         print(f'Steps per second:\t{self.steps / self.clock.sim_time:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
         print(self.ramjet)
 
@@ -77,8 +79,22 @@ class Simulation:
         # Safety end condition: a century of steps (not time!) has past
         self.heat_death()
 
-    # Hanldes the end of the simulation
+    # Handles the end of the simulation
     def end(self):
+
+        # Timestamps end of simulation
+        self.clock.real_time.stamp()
+
+        # Adds final snapshot; writes any remaining data
+        self.store.add(self.preview())
+        self.store.write()
+
+        # Re-writes the file to be easily read
+        self.store.flatten_file()
+
+        # Timestamps time taken to write and flatten
+        self.clock.real_time.stamp()
+
         self.printout()
         print('All done!')
 
@@ -110,8 +126,8 @@ class Simulation:
 # The same as Simulation but the steps are taken at a rate of 1:1 with printouts.
 # Only DebugSim can perform printouts
 class DebugSimulation(Simulation):
-    def __init__(self, rate: float, framerate: float, file: str) -> None:
-        super().__init__(rate, framerate, file)
+    def __init__(self, rate: float, framerate: float, ramjet: str, file: str) -> None:
+        super().__init__(rate, framerate, ramjet, file)
 
     def __call__(self) -> None:
         while self.exist:

@@ -89,8 +89,7 @@ class Ramjet:
                 self.generator.name:    self.generator.get_preview(),
             },
             'spacetime':    self.spacetime.get_preview(),
-            'mass':         self.mass,
-            'name':         self.name
+            'mass':         self.mass
         }
 
 
