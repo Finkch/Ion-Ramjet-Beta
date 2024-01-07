@@ -49,10 +49,6 @@ class Simulation:
             # Checks whether the simulation can end
             self.check_end()
 
-        # Adds final snapshot; writes any remaining data
-        self.store.add(self.preview())
-        self.store.write()
-
         # Handles the end of the simulation
         self.end()
 
@@ -79,6 +75,14 @@ class Simulation:
 
     # Hanldes the end of the simulation
     def end(self):
+
+        # Adds final snapshot; writes any remaining data
+        self.store.add(self.preview())
+        self.store.write()
+
+        # Re-writes the file to be easily read
+        self.store.flatten_file()
+
         self.printout()
         print('All done!')
 
