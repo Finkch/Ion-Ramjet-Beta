@@ -19,7 +19,7 @@ class Store:
         # If supplied with some starting data, write it out immediatly
         if initial_data:
             self.unflattened.append(initial_data)
-            self.write()
+            self.write(flag = 'w')
 
     # Adds the data to the array
     def add(self, data: dict) -> None:
@@ -59,18 +59,71 @@ class Store:
 
 
     # Reads data from a file, returning it as a dictionary
-    def read(self) -> dict:
+    def flatten_file(self) -> None:
         with open(self.file, 'r') as file:
             for line in file:
                 line = line.replace("'", '"') # Replaces single-quotes with double-quotes
                 self.unflattened.append(json.loads(line))
 
         # Grabs the metadata from data
-        self.metadata = self.unflattened.pop(0)
+        self.data['metadata'] = self.unflattened.pop(0)
 
         # Flattens the dictionary to minimal depth
         self.flatten()
 
+        # Writes the flattened file
+        self.write(self.data, 'w')
+
+    # Reads the text file
+    def read(self) -> dict:
+        first_line = True
+
+        # Opens the file and parses line by line
+        with open(self.file, 'r') as file:
+            for line in file:
+
+                # Deliminates data and key with a colon
+                data = line.split(':', 1)
+
+
+
+                # Obtains the metadata, stored on the first line
+                if first_line:
+                    first_line = False
+                    
+                    # Grabs the key-values for metadata
+                    #   1) Metadata is the second item in the two-item list called data
+                    #   2) Removes braces and the newline
+                    #   3) Removes quotation marks
+                    #   4) Deliminats key-value pairs by a comma followed by a space
+                    pairs = data[1][1:-2].replace("'", '').split(', ')
+                    
+                    # Iterates over every key-value pair, putting them into the metadata dictionary
+                    for pair in pairs:
+                        kv = pair.split(': ')
+                        try:
+                            self.metadata[kv[0]] = float(kv[1])
+                        except:
+                            self.metadata[kv[0]] = kv[1]
+
+                    # Skips the rest of the processing
+                    continue
+
+
+
+                # The key
+                key = data[0]
+
+                # Converts the data into a list of floats
+                #   1) Gets rid of the brackets and newline
+                #   2) Deliminates on a comma followed by a space
+                #   3) Constructs array with floats
+                values = [float(x) for x in data[1][1:-2].split(', ')]                
+
+                # Sets the data
+                self.data[key] = values
+
+        # Returns the data
         return self.data, self.metadata
 
     # Flattens the data array so that it has minimal depth
