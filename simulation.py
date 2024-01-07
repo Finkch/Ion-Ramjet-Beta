@@ -31,8 +31,13 @@ class Simulation:
         # Used to store data at each step
         self.store: Store = Store(file, {'step_size': self.step, 'name': self.ramjet.name})
     
-    # Simulation loop
+    # Calling Simulation begins simulation loop
     def __call__(self):
+
+        # Stamps start of simulation
+        self.clock.real_time.stamp()
+
+        # Simulation loop
         while self.exist:
             
             # Adds snapshot to data store
@@ -57,9 +62,11 @@ class Simulation:
     def printout(self):
         print('\n\n')
         print(f'Rate:\t\t\t{self.step:.0f} s : 1 step')
-        print(f'Real time:\t\t{self.clock} -> {self.clock.sim_time:.2e} s')
+        print(f'Total time:\t\t{readable_time((self.clock.real_time.peek_dif(1) + self.clock.real_time.peek_dif(0)) / 1000)} -> {(self.clock.real_time.peek_dif(1) + self.clock.real_time.peek_dif(0)) / 1000:.2e} s')
+        print(f'Time to simulate:\t{readable_time(self.clock.real_time.peek_dif(1) / 1000)} -> {self.clock.real_time.peek_dif(1) / 1000:.2e} s')
+        print(f'Time to store:\t\t{readable_time(self.clock.real_time.peek_dif()/ 1000)} -> {self.clock.real_time.peek_dif()/ 1000:.2e} s')
         print(f'Sim time:\t\t{readable_time(self.sim_time)} -> {self.sim_time:.2e} s')
-        print(f'Sim time\':\t\t{readable_time(self.ramjet.spacetime.time)} -> {self.ramjet.spacetime.time:.2e} s')
+        print(f'Ramjet time (dilated):\t{readable_time(self.ramjet.spacetime.time)} -> {self.ramjet.spacetime.time:.2e} s')
         print(f'Steps per second:\t{self.steps / self.clock.sim_time:.0f} (recent: {1000 / self.clock.timer.get_average_difs():.0f})')
         print(self.ramjet)
 
@@ -76,12 +83,18 @@ class Simulation:
     # Hanldes the end of the simulation
     def end(self):
 
+        # Timestamps end of simulation
+        self.clock.real_time.stamp()
+
         # Adds final snapshot; writes any remaining data
         self.store.add(self.preview())
         self.store.write()
 
         # Re-writes the file to be easily read
         self.store.flatten_file()
+
+        # Timestamps time taken to write and flatten
+        self.clock.real_time.stamp()
 
         self.printout()
         print('All done!')
