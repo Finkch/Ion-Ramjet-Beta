@@ -12,7 +12,7 @@ class Plotter:
 
 
     # Calling Plotter plots data
-    def __call__(self, x_key: str, y_key: str, plot_name: str, axes_names: list[str, str]) -> None:
+    def __call__(self, x_key: str, y_key: str, plot_name: str, axes_names: list[str, str], *args) -> None:
 
         # Grabs the necessary data
         x = self.data[x_key]
