@@ -31,6 +31,15 @@ class Plotter:
         mpl.xlabel(axes_names[0])
         mpl.ylabel(axes_names[1])
 
+
+        # Handles extra arguments
+        if 'logy' in args:
+            axes.set_yscale('log')
+        
+        if 'logx' in args:
+            axes.set_xscale('log')
+
+
     # Shows plot
     def show(self):
         mpl.show()
