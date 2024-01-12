@@ -31,8 +31,29 @@ def get_ramjet(name: str) -> Ramjet:
             # H     = 1.00784 u
             ramjet: Ramjet = Ramjet(name, 100, 10, 1e7, 26, 4.9e4, 1.5e6, 1e6, 1e2, 1e8)
 
-            ramjet
+        
+        # A repurposed Dawn spacecraft
+        case 'Dawn':
 
+            RTG_mass = 57
+            RTG_power = 300
+            RTG_count = 10
+
+            engine_power = 2.3e3
+
+            scoop_power = RTG_power * RTG_count - engine_power
+            scoop_radius = (scoop_power / 10) ** (1 / 2)
+
+            # GPHS-RTG
+            #   mass:   55.9-57.8   kg
+            #   power:  300         W
+            #
+            # Let's include 10!
+
+            # Dry mass of 747.1 kg, including solar panels
+            # Each dawn solar panel is 63 kg; replacing them with RTGs
+            ramjet: Ramjet = Ramjet(name, 621.1 + RTG_mass * RTG_count, 470.6, 4233600, 0.092, 30500, engine_power, scoop_power, scoop_radius, RTG_power * RTG_count)
+            
 
         # Crashes if supplied name does not match any entries
         case _:
