@@ -6,6 +6,18 @@ from ramjet import Ramjet
 # Calling this function returns a Ramjet
 def get_ramjet(name: str) -> Ramjet:
     
+    # Ramjet {
+    #   name:               str
+    #   mass:               float
+    #   fuel_capacity:      float
+    #   battery_capacity:   float
+    #   thrust:             float
+    #   v_e:                float
+    #   engine_power:       float
+    #   scoop_power:        float
+    #   scoop_radius:       float
+    #   power:              float
+    # }
     ramjet = None
     
     # Selects the Ramjet
