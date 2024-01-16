@@ -74,10 +74,10 @@ class Simulation:
 
         # One end condition: tank is empty
         # This is not always a condition
-        #self.tank_empty()
+        self.tank_empty()
 
         # Safety end condition: a century of steps (not time!) has past
-        self.heat_death()
+        #self.heat_death()
 
     # Handles the end of the simulation
     def end(self):
